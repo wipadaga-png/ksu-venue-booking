@@ -44,8 +44,7 @@ const BOOKING_FORM_BASE =
   'https://script.google.com/macros/s/AKfycbxuD4941h6anpbaJUXeI7R5Z-Ol9rydv3h8o3MmXgyGJXHfHJpwiKLdJyeklloKZUOz/exec';
 
 function buildRoomBookingUrl(room) {
-  const url = new URL(https://script.google.com/macros/s/AKfycbxuD4941h6anpbaJUXeI7R5Z-Ol9rydv3h8o3MmXgyGJXHfHJpwiKLdJyeklloKZUOz/exec);
-
+const url = new URL(BOOKING_FORM_BASE);
   url.searchParams.set('page', 'room');
   url.searchParams.set('place', room.venueCode);
   url.searchParams.set('floor', room.floorCode);
@@ -185,6 +184,8 @@ card.appendChild(
 box.appendChild(card);
 
     }
+    }
+      
     async function refreshStatus(){
       if(!state.structure)return;
       const date=$('date').value,start=$('start').value,end=$('end').value;
