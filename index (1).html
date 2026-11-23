@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>University Smart Venue Booking | แผนผังอาคาร</title>
+  <style>
+    :root{--ink:#16314c;--muted:#65778c;--blue:#1e598e;--paper:#f3f7fb;--line:#dfebf3;--white:#fff;--green:#22c55e;--amber:#f59e0b;--busy:#3b82f6;--red:#ef4444;--grey:#64748b}
+    *{box-sizing:border-box}body{margin:0;font-family:Tahoma,"Noto Sans Thai",Arial,sans-serif;color:var(--ink);background:var(--paper)}button,input{font:inherit}
+    .topbar{background:linear-gradient(115deg,#0d375d,#1a6a8c);color:white;padding:23px max(4vw,18px);box-shadow:0 3px 16px #0a284023}
+    .topwrap{max-width:1450px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+    .eyebrow{font-size:11px;letter-spacing:2.3px;text-transform:uppercase;color:#b7e2ef;font-weight:bold}.topbar h1{font-size:clamp(21px,3vw,33px);margin:8px 0 5px}.topbar p{margin:0;color:#d0e6f2;font-size:13px}.topmark{display:flex;align-items:center;gap:10px;font-size:12px;border:1px solid #ffffff55;padding:10px 13px;border-radius:14px}
+    .page{max-width:1450px;margin:25px auto;padding:0 max(3vw,16px)}.toolbar{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:17px}.field{display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--muted);font-weight:bold}.field input{border:1px solid #cddde9;border-radius:10px;padding:11px 10px;color:var(--ink);background:#fff;min-height:43px}.btn{border:0;border-radius:10px;padding:11px 16px;background:#216a9a;color:white;cursor:pointer;font-weight:bold;min-height:43px}.btn:hover{background:#164a75}.btn:disabled{background:#9aa9b9;cursor:not-allowed}.soft{background:#e4eff7;color:#1d5684}.soft:hover{background:#d5e8f5}
+    .layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(325px,.9fr);gap:18px;align-items:start}.panel{background:white;border:1px solid var(--line);border-radius:19px;box-shadow:0 12px 34px #23485e0c;overflow:hidden}.panelhead{padding:19px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px}.panelhead h2{font-size:17px;margin:0}.sub{font-size:12px;color:var(--muted);line-height:1.6}.smallpill{border-radius:99px;background:#edf4f9;padding:7px 10px;font-size:11px;color:var(--blue)}
+    .scene{background:radial-gradient(ellipse at 50% 50%,#eff7ed 0,#edf6ed 48%,#e2eff1 100%);padding:28px 24px 24px;min-height:400px;position:relative;overflow:hidden}.scene:after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.32;background-image:linear-gradient(30deg,transparent 48%,#bfd6ca 49%,transparent 50%),linear-gradient(150deg,transparent 48%,#bfd6ca 49%,transparent 50%);background-size:120px 120px}
+    .campus{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:12px;row-gap:31px;position:relative;z-index:1;padding:6px 4px 12px}.venue{border:none;background:transparent;text-align:center;cursor:pointer;min-width:0;padding:0;position:relative;color:var(--ink)}.venue:focus-visible{outline:3px solid #0782c6;outline-offset:8px;border-radius:9px}.shape{width:78%;max-width:150px;height:89px;display:block;margin:0 auto 13px;position:relative;transform:skewY(-9deg);filter:drop-shadow(6px 10px 5px #608f8f4f);transition:transform .18s,filter .18s}.shape:before{content:"";position:absolute;inset:0;background:linear-gradient(140deg,#c1e2e4,#68aab9);border:2px solid #477f95;border-radius:5px;box-shadow:inset -13px -7px #4f9eb0}.shape:after{content:"";position:absolute;top:-15px;left:12px;right:-12px;height:15px;transform:skewX(-52deg);background:#e0f2ef;border:2px solid #477f95;border-bottom:0;border-radius:3px 6px 0 0}.venue:nth-child(2n) .shape:before{background:linear-gradient(140deg,#c4d7ee,#80a8ce);box-shadow:inset -13px -7px #5e8cb4}.venue:nth-child(3n) .shape:before{background:linear-gradient(140deg,#dfe9b5,#92bcaa);box-shadow:inset -13px -7px #75ad9a}.venue:hover .shape,.venue.selected .shape{transform:skewY(-9deg) translateY(-7px);filter:drop-shadow(7px 14px 7px #417a9f70)}.venue.selected .shape:before{outline:4px solid #235f9d;outline-offset:3px}.venue-name{display:block;font-size:12px;font-weight:bold;min-height:36px;line-height:1.5}.venue-code{display:block;font-size:10px;color:#587180;margin-top:3px}.indicator{position:absolute;top:-10px;right:6px;border:2px solid white;width:16px;height:16px;border-radius:50%;background:var(--grey);z-index:4;box-shadow:0 2px 4px #0003}.legend{display:flex;flex-wrap:wrap;gap:10px 19px;font-size:11px;color:#617584;padding:14px 22px;border-top:1px solid var(--line)}.dot{display:inline-block;width:9px;height:9px;border-radius:100%;margin-right:5px}
+    .details{padding:18px 20px;min-height:420px}.breadcrumb{font-size:11px;color:#60778a;margin:2px 0 12px}.roomline{display:flex;align-items:center;justify-content:space-between;gap:10px}.heading{font-size:21px;font-weight:bold;margin:5px 0 2px}.note{font-size:12px;color:var(--muted);margin:7px 0 16px;line-height:1.65}.section-label{font-size:13px;font-weight:bold;margin:19px 0 10px}.floors{display:flex;flex-wrap:wrap;gap:8px}.floor{border-radius:9px;padding:9px 13px;background:#edf3f8;color:#46627c;border:1px solid #d8e6ee;cursor:pointer}.floor.active{background:#1d5b89;color:#fff;border-color:#1d5b89}.rooms{display:grid;gap:9px}.room{width:100%;text-align:left;background:#fff;border:1px solid #dce7ef;cursor:pointer;padding:12px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}.room:hover,.room.selected{border-color:#2d7ead;background:#f5faff}.room-name{font-size:13px;font-weight:bold}.room-info{font-size:11px;color:var(--muted);margin-top:3px}.status{font-size:11px;border-radius:20px;color:#fff;padding:5px 8px;white-space:nowrap}.room-card{background:#f4f8fb;border:1px solid #dae7f0;border-radius:14px;padding:16px;margin-top:17px}.room-card h3{margin:0 0 8px;font-size:15px}.room-card p{font-size:12px;line-height:1.75;margin:5px 0;color:#4c637a}.room-card strong{color:var(--ink)}.message{padding:13px 14px;border-radius:11px;background:#f6f8fa;color:#586c7e;font-size:12px;line-height:1.65}.error{background:#fff0eb;color:#9c3729;border:1px solid #ffd4c7}.footer{margin:18px 2px 30px;font-size:11px;line-height:1.6;color:#66798b}.helper{font-size:11px;color:#58758b;padding:10px 22px;border-top:1px solid var(--line)}
+    @media(max-width:850px){.layout{grid-template-columns:1fr}.scene{min-height:0}.campus{grid-template-columns:repeat(3,minmax(0,1fr))}.shape{height:70px}.topmark{display:none}}@media(max-width:440px){.campus{grid-template-columns:repeat(2,minmax(0,1fr))}.venue-name{font-size:11px}.toolbar{align-items:stretch}.field{flex:1;min-width:100px}.toolbar .btn{width:100%}.panelhead{padding:15px}.scene{padding:22px 16px}}
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="topwrap"><div><div class="eyebrow">Kalasin University · Na Mon Campus</div><h1>ระบบจองสถานที่อัจฉริยะ</h1><p>แผนผังจำลอง 3D • อาคาร → ชั้น → ห้อง → ตรวจสอบสถานะ</p></div><div class="topmark">▧ &nbsp; UNIVERSITY SMART VENUE BOOKING<br>ต้นแบบเว็บไซต์ภายนอก Canva</div></div></header>
+  <main class="page">
+    <div class="toolbar">
+      <label class="field">วันที่ที่ต้องการใช้สถานที่<input id="date" type="date"></label>
+      <label class="field">เวลาเริ่มต้น<input id="start" type="time" value="09:00"></label>
+      <label class="field">เวลาสิ้นสุด<input id="end" type="time" value="10:00"></label>
+      <button class="btn" id="refresh" type="button">ตรวจสอบสถานะใหม่</button>
+      <span class="sub" id="lastUpdate" role="status" aria-live="polite">กำลังโหลดข้อมูล…</span>
+    </div>
+    <div class="layout">
+      <section class="panel"><div class="panelhead"><div><h2>แผนผังสถานที่ (จำลอง 3D)</h2><div class="sub">คลิกอาคารเพื่อเลือกชั้นและห้อง</div></div><span class="smallpill" id="venueCount">— สถานที่</span></div><div class="scene"><div class="campus" id="campus"><p class="sub">กำลังโหลดข้อมูลสถานที่…</p></div></div><div class="legend"><span><i class="dot" style="background:#22c55e"></i>ว่างทั้งหมด</span><span><i class="dot" style="background:#f59e0b"></i>ว่างบางส่วน/รออนุมัติ</span><span><i class="dot" style="background:#3b82f6"></i>ไม่ว่าง</span><span><i class="dot" style="background:#64748b"></i>ไม่ทราบสถานะ</span></div><div class="helper">แผนผังเป็นภาพสัญลักษณ์ ไม่ใช่ตำแหน่งหรือขนาดอาคารตามสภาพจริง</div></section>
+      <section class="panel"><div class="panelhead"><h2>รายละเอียดอาคารและห้อง</h2><span class="smallpill" id="floorCount">— ชั้น</span></div><div class="details" id="details"><p class="message">กรุณาเลือกอาคารจากแผนผังด้านซ้าย</p></div></section>
+    </div>
+    <p class="footer">ต้นแบบนี้อ่านข้อมูลสาธารณะที่กำหนดไว้จาก University Venue Status API โดยไม่แสดงข้อมูลส่วนตัวของผู้จอง และยังไม่รับคำขอจองรายห้องจริง ปุ่มจองจะเปิดใช้งานหลังพัฒนาระบบหลังบ้านให้ตรวจสอบรหัสห้องได้ปลอดภัยก่อนเท่านั้น</p>
+  </main>
+  <script>
+    'use strict';
+    // ใช้ URL จากการทำให้ใช้งานได้ของ Status API เดิมเท่านั้น
+    const API_BASE = 'https://script.google.com/a/macros/ksu.ac.th/s/AKfycbxtrvIz7u41Nn2w9z31KrN3OMBJRyH86VPRIp1ePKcDranZqIBVyCvltuIdonbRVOkk/exec';
+    const COLOR={green:'#22c55e',amber:'#f59e0b',blue:'#3b82f6',gray:'#64748b',red:'#ef4444'};
+    const state={structure:null,status:null,selectedVenue:null,originVenue:null,selectedFloor:null,selectedRoom:null,statusLoading:false};
+    const $=id=>document.getElementById(id);
+    const roomKey=r=>String(r.venueCode)+':'+String(r.code);
+    const statusFor=r=>(state.status?.success?state.status.rooms.find(s=>roomKey(s)===roomKey(r)):null);
+    const el=(tag,attrs={},text='')=>{const n=document.createElement(tag);for(const [k,v] of Object.entries(attrs)){if(k==='class')n.className=v;else n.setAttribute(k,v)}if(text!==undefined)n.textContent=String(text);return n};
+    const truncate=(s,n=100)=>String(s||'').slice(0,n);
+    const statusColor=s=>{if(!s)return COLOR.gray;return ['ว่าง'].includes(s.status)?COLOR.green: ['รออนุมัติ'].includes(s.status)?COLOR.amber:['กำลังใช้งาน'].includes(s.status)?COLOR.blue:COLOR.red};
+    // JSONP สำหรับ API ที่ส่ง callback ได้: ใช้สำหรับข้อมูลอ่านอย่างเดียวเท่านั้น
+    function jsonp(params){
+      return new Promise((resolve,reject)=>{
+        const cb='venuestatus_'+Date.now()+'_'+Math.floor(Math.random()*1e8);
+        const url=new URL(API_BASE);Object.entries({...params,callback:cb}).forEach(([k,v])=>url.searchParams.set(k,String(v)));
+        const script=document.createElement('script');let done=false;
+        const finish=(err,data)=>{if(done)return;done=true;clearTimeout(timer);script.remove();try{delete window[cb]}catch(_){window[cb]=undefined}err?reject(err):resolve(data)};
+        window[cb]=data=>finish(null,data);
+        script.onerror=()=>finish(new Error('โหลด API ไม่สำเร็จ กรุณาตรวจสอบสิทธิ์ของ Web App และการเชื่อมต่อ'));
+        const timer=setTimeout(()=>finish(new Error('API ไม่ตอบกลับภายในเวลาที่กำหนด')),14000);
+        script.src=url.toString();document.head.appendChild(script);
+      });
+    }
+    function setMsg(where,msg,bad=false){where.replaceChildren(el('p',{class:'message'+(bad?' error':'')},msg))}
+    function selectedRooms(){
+      const v=state.selectedVenue; if(!v||!state.structure)return [];
+      let arr=state.structure.rooms.filter(r=>r.venueCode===v);
+      if(state.originVenue==='P003')arr=arr.filter(r=>r.code==='C01');
+      if(state.selectedFloor)arr=arr.filter(r=>r.floorCode===state.selectedFloor);
+      return arr;
+    }
+    function overallStatus(venueCode){
+      if(!state.structure||!state.status?.success)return COLOR.gray;
+      const mapped=venueCode==='P003'?'P002':venueCode;
+      let rooms=state.structure.rooms.filter(r=>r.venueCode===mapped);
+      if(venueCode==='P003')rooms=rooms.filter(r=>r.code==='C01');
+      if(!rooms.length)return COLOR.gray;
+      const statuses=rooms.map(statusFor);
+      if(statuses.some(s=>!s))return COLOR.gray;
+      const open=statuses.filter(s=>s.available).length;
+      if(open===rooms.length)return COLOR.green;
+      if(open===0)return COLOR.blue;
+      return COLOR.amber;
+    }
+    function renderCampus(){
+      const box=$('campus');box.replaceChildren();
+      if(!state.structure){setMsg(box,'ไม่สามารถโหลดข้อมูลสถานที่จาก Status API ได้',true);return}
+      const venues=state.structure.venues;
+      $('venueCount').textContent=venues.length+' สถานที่';
+      venues.forEach((v,i)=>{
+        const b=el('button',{class:'venue'+(state.originVenue===v.code?' selected':''),'type':'button','aria-label':'เลือก '+v.name});
+        const shape=el('span',{class:'shape'});const dot=el('span',{class:'indicator'});dot.style.background=overallStatus(v.code);shape.appendChild(dot);
+        b.append(shape,el('span',{class:'venue-name'},v.name),el('span',{class:'venue-code'},v.code+(v.code==='P003'?' • พื้นที่ภายใต้ P002':'')));
+        b.addEventListener('click',()=>selectVenue(v.code));box.appendChild(b)
+      });
+    }
+    function selectVenue(code){
+      state.originVenue=code;state.selectedVenue=code==='P003'?'P002':code;
+      const floors=state.structure.floors.filter(f=>f.venueCode===state.selectedVenue).sort((a,b)=>a.order-b.order);
+      const desired=code==='P003'? 'P002-F01':null;
+      state.selectedFloor=floors.find(f=>f.code===desired)?.code||floors[0]?.code||null;
+      state.selectedRoom=null;
+      renderCampus();renderDetails();
+      $('details').scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+    function renderDetails(){
+      const box=$('details');box.replaceChildren();
+      if(!state.structure){setMsg(box,'ยังโหลดโครงสร้างไม่สำเร็จ จึงไม่สามารถแสดงรายละเอียดจริงได้',true);return}
+      if(!state.selectedVenue){setMsg(box,'เลือกสถานที่จากแผนผังทางซ้ายเพื่อดูชั้น ห้อง และสถานะการจอง');return}
+      const actual=state.structure.venues.find(v=>v.code===state.selectedVenue);
+      const origin=state.structure.venues.find(v=>v.code===state.originVenue);
+      box.appendChild(el('div',{class:'breadcrumb'},'แผนที่มหาวิทยาลัย  ›  '+(origin?.name||state.selectedVenue)));
+      box.appendChild(el('div',{class:'heading'},origin?.name||actual?.name||state.selectedVenue));
+      box.appendChild(el('p',{class:'note'},state.originVenue==='P003'?'รหัส P003 จากระบบเดิม เชื่อมกับพื้นที่ C01 ใน P002 ชั้น 1 โดยไม่เปลี่ยนข้อมูลประวัติการจอง':truncate(actual?.description||'เลือกชั้นและพื้นที่ย่อยเพื่อดูข้อมูล',170)));
+      const floors=state.structure.floors.filter(f=>f.venueCode===state.selectedVenue).sort((a,b)=>a.order-b.order);
+      if(state.originVenue==='P003'){const limited=floors.filter(f=>f.code==='P002-F01');floors.splice(0,floors.length,...limited)}
+      $('floorCount').textContent=floors.length+' ชั้น/ระดับ';
+      if(floors.length){box.appendChild(el('div',{class:'section-label'},'เลือกชั้น'));const nav=el('div',{class:'floors'});floors.forEach(f=>{const b=el('button',{type:'button',class:'floor'+(state.selectedFloor===f.code?' active':'')},f.name);b.onclick=()=>{state.selectedFloor=f.code;state.selectedRoom=null;renderDetails()};nav.appendChild(b)});box.appendChild(nav)}
+      box.appendChild(el('div',{class:'section-label'},'ห้องและพื้นที่ที่จองได้ตามเงื่อนไข'));
+      const rooms=selectedRooms();const list=el('div',{class:'rooms'});
+      if(!rooms.length){list.appendChild(el('p',{class:'message'},'ไม่มีข้อมูลห้องหรือพื้นที่ย่อยของชั้นนี้ในชีต'))}
+      else rooms.forEach(r=>{
+        const s=statusFor(r),b=el('button',{class:'room'+(state.selectedRoom===roomKey(r)?' selected':''),type:'button'});
+        const nameWrap=el('div');nameWrap.append(el('div',{class:'room-name'},r.name),el('div',{class:'room-info'},'รหัส '+r.code+' · ความจุ '+r.capacity+' คน'));
+        const badge=el('span',{class:'status'},s?s.status:'ยังไม่ทราบสถานะ');badge.style.background=statusColor(s);
+        b.append(nameWrap,badge);b.onclick=()=>{state.selectedRoom=roomKey(r);renderDetails()};list.appendChild(b)
+      });box.appendChild(list);
+      const room=rooms.find(r=>roomKey(r)===state.selectedRoom);
+      if(room){
+        const s=statusFor(room),card=el('div',{class:'room-card'});card.appendChild(el('h3',{},room.name));
+        const lines=[['รหัสห้อง',room.code],['ชั้น',state.structure.floors.find(f=>f.code===room.floorCode)?.name||'ไม่ระบุ'],['ประเภท',room.type],['ความจุ',room.capacity+' คน'],['รายละเอียด',room.description||'-'],['สถานะ',s?s.status:'ไม่สามารถตรวจสอบได้']];
+        lines.forEach(([k,v])=>{const p=el('p');p.append(el('strong',{},k+': '),document.createTextNode(String(v)));card.appendChild(p)});
+        const button=el('button',{class:'btn',type:'button',disabled:'disabled'},s?.available?'ยังไม่เปิดจองรายห้อง':'ไม่สามารถส่งคำขอจอง');button.style.marginTop='11px';card.appendChild(button);
+        card.appendChild(el('p',{class:'sub'},'ระบบบันทึกคำขอจองรายห้องยังต้องพัฒนาและทดสอบก่อนเปิดใช้งาน'));box.appendChild(card)
+      }
+    }
+    async function refreshStatus(){
+      if(!state.structure)return;
+      const date=$('date').value,start=$('start').value,end=$('end').value;
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!start||!end||start>=end){$('lastUpdate').textContent='กรุณาเลือกวันที่และช่วงเวลาให้ถูกต้อง';state.status=null;renderCampus();renderDetails();return}
+      $('lastUpdate').textContent='กำลังตรวจสอบสถานะ…';state.status=null;renderCampus();renderDetails();
+      try{
+        const result=await jsonp({action:'room-status',date,start,end});
+        if(!result?.success||!Array.isArray(result.rooms))throw new Error(result?.message||'รูปแบบผลตอบกลับไม่ถูกต้อง');
+        state.status=result;$('lastUpdate').textContent='อัปเดตสถานะแล้ว · '+new Date().toLocaleTimeString('th-TH');
+      }catch(err){state.status=null;$('lastUpdate').textContent='ตรวจสอบสถานะไม่ได้: '+err.message}
+      renderCampus();renderDetails();
+    }
+    async function init(){
+      $('date').value=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+      $('refresh').addEventListener('click',refreshStatus);
+      ['date','start','end'].forEach(id=>$(id).addEventListener('change',refreshStatus));
+      try{
+        const result=await jsonp({action:'structure'});
+        if(!result?.success||!Array.isArray(result.venues)||!Array.isArray(result.floors)||!Array.isArray(result.rooms))throw new Error(result?.message||'โครงสร้างข้อมูลไม่ถูกต้อง');
+        state.structure=result;
+        state.originVenue=result.venues.find(v=>v.code==='P002')?.code||result.venues[0]?.code||null;
+        state.selectedVenue=state.originVenue;
+        const firstFloor=result.floors.find(f=>f.venueCode===state.selectedVenue);state.selectedFloor=firstFloor?.code||null;
+        renderCampus();renderDetails();await refreshStatus();
+      }catch(err){$('lastUpdate').textContent='โหลดข้อมูลไม่ได้: '+err.message;renderCampus();renderDetails()}
+    }
+    init();
+  </script>
+</body>
+</html>
