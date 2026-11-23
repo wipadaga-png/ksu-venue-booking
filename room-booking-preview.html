@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ตรวจสอบห้องก่อนจอง — University Smart Venue Booking</title>
+<style>
+:root{--navy:#103858;--blue:#1c6a99;--bg:#eef4f8;--muted:#5e7384}
+*{box-sizing:border-box}body{font:15px/1.65 Tahoma,"Noto Sans Thai",Arial,sans-serif;background:var(--bg);margin:0;color:#183c59}
+header{background:linear-gradient(120deg,#123e65,#187b97);color:white;padding:24px max(20px,5vw)}h1{font-size:clamp(21px,3vw,29px);margin:4px 0}header p{margin:0;font-size:13px;color:#d6edf8}
+main{max-width:1100px;margin:22px auto;padding:0 15px}.columns{display:grid;grid-template-columns:1.1fr .9fr;gap:17px;align-items:start}
+.card{background:white;border:1px solid #dbe8ed;border-radius:18px;padding:23px;box-shadow:0 11px 26px #16445c0b}h2{font-size:18px;margin:0 0 6px}h3{font-size:15px;margin:17px 0 6px}
+.muted{font-size:12px;color:var(--muted)}label{display:grid;gap:7px;font-size:13px;color:#415f77;font-weight:700;margin-top:12px}
+select,input{font:inherit;border:1px solid #cbdce5;border-radius:10px;padding:10px;min-height:45px;background:#fff;color:#153b55;width:100%}
+.time{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button,a.action{cursor:pointer;background:#1c6a99;color:white;border:0;border-radius:10px;padding:10px 15px;font:inherit;text-decoration:none;display:inline-block}button:disabled{cursor:not-allowed;background:#a2b2bd}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.note{font-size:13px;border:1px solid #dae6ed;background:#f2f7fa;border-radius:12px;padding:13px;margin-top:15px}
+.warn{background:#fff4ee;border-color:#f4d8c6;color:#8c422b}.success{background:#ecf9f0;border-color:#c5e9d0;color:#236b3b}
+.badge{display:inline-block;padding:4px 10px;border-radius:40px;color:white;font-size:12px}
+.room{padding:12px;border:1px solid #d9e6ed;border-radius:10px;margin:8px 0;display:flex;gap:9px;align-items:center;justify-content:space-between}
+.room.selected{border-color:#1c80b4;background:#f0f9ff}.room button{padding:7px 11px}
+#detail p{margin:7px 0;font-size:13px}footer{margin:20px 0;color:#617487;font-size:12px}
+@media(max-width:750px){.columns{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div style="font-size:11px;letter-spacing:1.4px">KALASIN UNIVERSITY · NA MON CAMPUS</div>
+<h1>ตรวจสอบห้องและสนามก่อนจอง</h1>
+<p>ทดลองระบบจองรายห้อง • อ่านสถานะจาก Google Sheets • ยังไม่บันทึกคำขอจริง</p></header>
+<main>
+<div class="row" style="margin-bottom:16px">
+<a class="action" href="campus-map-3d-v4.html">← กลับแผนที่มหาวิทยาลัย</a>
+<a class="action" style="background:#457b8e" href="p005-3d-preview.html">ดูยิมเก่า 3D</a>
+<a class="action" style="background:#457b8e" href="p002-3d-v2.html">ดู P002 3D</a>
+</div>
+<div class="columns">
+<section class="card">
+<h2>1. เลือกอาคาร ชั้น และห้อง</h2>
+<div class="muted">รายชื่อห้องอ่านจาก `action=structure` ของ Status API</div>
+<label>สถานที่หลัก<select id="venue"><option>กำลังโหลด...</option></select></label>
+<label>ชั้น/ระดับ<select id="floor"><option>กรุณาเลือกสถานที่</option></select></label>
+<label>ห้องหรือสนาม<select id="room"><option>กรุณาเลือกชั้น</option></select></label>
+<h3>2. วันและเวลาที่ต้องการใช้</h3>
+<label>วันที่<input type="date" id="date"></label>
+<div class="time"><label>เวลาเริ่ม<input type="time" id="start" value="09:00"></label>
+<label>เวลาสิ้นสุด<input type="time" id="end" value="10:00"></label></div>
+<div class="row" style="margin-top:17px"><button id="check">ตรวจสอบสถานะ</button><span id="message" class="muted" role="status">กำลังโหลด…</span></div>
+<div class="note" id="availability">เลือกห้อง วันที่ และเวลาเพื่อดูสถานะ</div>
+</section>
+<aside class="card">
+<h2>รายละเอียดห้องหรือสนาม</h2>
+<div id="detail"><p class="muted">เลือกห้องก่อนเพื่อดูข้อมูล</p></div>
+<h3>การส่งคำขอจอง</h3>
+<div class="note warn"><strong>ยังไม่เปิดบันทึกคำขอจองรายห้อง</strong><br>
+หน้านี้ใช้สำหรับทดลองการเลือกห้องและตรวจสอบเวลาว่างเท่านั้น ระบบจองเดิมยังไม่ได้รับการปรับให้บันทึกรหัสห้องและตรวจสอบการจองซ้ำทุกช่องทางอย่างสมบูรณ์</div>
+<button disabled style="margin-top:12px;width:100%" title="ต้องเปิดใช้งานผ่านระบบจองที่รองรับรหัสห้องก่อน">ส่งคำขอจองรายห้อง (ยังไม่เปิดใช้)</button>
+</aside>
+</div>
+<footer>ไม่เก็บชื่อ อีเมล หรือข้อมูลส่วนตัว • หาก API ใช้งานไม่ได้ จะไม่ถือว่าห้องว่าง • สถานะอาจเปลี่ยนก่อนบันทึกคำขอจริง</footer>
+</main>
+<script>
+'use strict';
+const API='https://script.google.com/a/macros/ksu.ac.th/s/AKfycbxtrvIz7u41Nn2w9z31KrN3OMBJRyH86VPRIp1ePKcDranZqIBVyCvltuIdonbRVOkk/exec';
+const $=id=>document.getElementById(id);
+const state={structure:null,status:null,seq:0};
+function jsonp(params){
+ return new Promise((resolve,reject)=>{
+   const cb='ksu_rb_'+Date.now()+'_'+Math.floor(Math.random()*1e9);
+   const url=new URL(API);Object.entries({...params,callback:cb}).forEach(([k,v])=>url.searchParams.set(k,String(v)));
+   const script=document.createElement('script');let finished=false,timer;
+   function end(err,val){if(finished)return;finished=true;clearTimeout(timer);script.remove();delete window[cb];err?reject(err):resolve(val)}
+   window[cb]=val=>end(null,val);
+   script.onerror=()=>end(Error('เชื่อมต่อ API ไม่ได้ หรือบัญชีไม่มีสิทธิ์'));
+   timer=setTimeout(()=>end(Error('หมดเวลารอข้อมูลสถานะ')),16000);
+   script.src=url.toString();document.head.append(script);
+ });
+}
+function opts(select,items,getValue,getName){select.replaceChildren();items.forEach(x=>{const o=document.createElement('option');o.value=getValue(x);o.textContent=getName(x);select.append(o)})}
+function venues(){const s=state.structure;return s? s.venues.filter((v,i,a)=>v.code!=='P003'&&a.findIndex(k=>k.code===v.code)===i):[]}
+function selected(){const s=state.structure;return s?.rooms.find(r=>r.venueCode===$('venue').value&&r.floorCode===$('floor').value&&r.code===$('room').value)}
+function onVenue(){
+ const s=state.structure;if(!s)return;
+ const list=s.floors.filter(f=>f.venueCode===$('venue').value).sort((a,b)=>a.order-b.order);
+ opts($('floor'),list,f=>f.code,f=>f.name+' ('+f.code+')');onFloor()
+}
+function onFloor(){
+ const s=state.structure;if(!s)return;
+ const rooms=s.rooms.filter(r=>r.venueCode===$('venue').value&&r.floorCode===$('floor').value);
+ opts($('room'),rooms,r=>r.code,r=>r.name+' ('+r.code+')');
+ detail();clearStatus()
+}
+function clearStatus(){state.status=null;$('availability').className='note';$('availability').textContent='กรุณาตรวจสอบสถานะตามวันและเวลาใหม่'}
+function detail(){
+ const root=$('detail');root.replaceChildren();const r=selected();
+ if(!r){const p=document.createElement('p');p.className='muted';p.textContent='ยังไม่มีห้องที่เลือก';root.append(p);return}
+ [['รหัสห้อง',r.code],['ชื่อห้อง',r.name],['รหัสอาคาร',r.venueCode],['รหัสชั้น',r.floorCode],['ประเภท',r.type],['ความจุ',r.capacity+' คน'],['รายละเอียด',r.description||'-'],['ผู้ดูแล',r.manager||'-'],['เปิดให้จองตามการตั้งค่า',r.bookable?'ใช่':'ไม่ใช่']].forEach(([name,val])=>{const p=document.createElement('p'),strong=document.createElement('strong');strong.textContent=name+': ';p.append(strong,document.createTextNode(String(val)));root.append(p)});
+}
+async function check(){
+ const date=$('date').value,start=$('start').value,end=$('end').value,r=selected(),seq=++state.seq;
+ if(!r){$('message').textContent='กรุณาเลือกห้อง';return}
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!start||!end||start>=end){$('message').textContent='กรุณาระบุวันและเวลาที่ถูกต้อง';clearStatus();return}
+ $('message').textContent='กำลังตรวจสอบ…';clearStatus();
+ try{
+  const res=await jsonp({action:'room-status',date,start,end});
+  if(seq!==state.seq)return;
+  if(!res||res.success!==true||!Array.isArray(res.rooms))throw Error(res?.message||'ข้อมูล API ไม่ถูกต้อง');
+  const st=res.rooms.find(x=>x.code===r.code&&x.venueCode===r.venueCode);
+  if(!st)throw Error('ไม่พบสถานะของห้องที่เลือก');
+  state.status=st;
+  $('availability').className='note '+(st.available?'success':'warn');
+  $('availability').textContent=(st.available?'ห้องว่างตามผลตรวจสอบ':'ไม่พร้อมให้จองในช่วงเวลานี้')+' — '+st.status+' (ยังไม่ใช่การยืนยันการจอง)';
+  $('message').textContent='ตรวจสอบสถานะแล้ว';
+ }catch(err){if(seq!==state.seq)return;$('message').textContent='ตรวจสอบไม่สำเร็จ';$('availability').className='note warn';$('availability').textContent='ไม่สามารถตรวจสอบสถานะ: '+err.message}
+}
+async function boot(){
+ const thaiToday=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ $('date').value=thaiToday;
+ ['venue','floor','room','date','start','end'].forEach(id=>$(id).addEventListener('change',()=>{
+   if(id==='venue')onVenue();else if(id==='floor')onFloor();else if(id==='room')detail();
+   state.seq++;clearStatus();
+ }));
+ $('check').addEventListener('click',check);
+ try{
+   const s=await jsonp({action:'structure'});
+   if(!s||s.success!==true||!Array.isArray(s.venues)||!Array.isArray(s.floors)||!Array.isArray(s.rooms))throw Error(s?.message||'ข้อมูลโครงสร้างไม่ถูกต้อง');
+   state.structure=s;
+   opts($('venue'),venues(),v=>v.code,v=>v.name+' ('+v.code+')');
+   onVenue();$('message').textContent='โหลดข้อมูลโครงสร้างแล้ว';
+ }catch(err){$('message').textContent='โหลดข้อมูลไม่ได้: '+err.message;$('availability').className='note warn';$('availability').textContent='ไม่สามารถดึงข้อมูลจาก API ได้'}
+}
+boot();
+</script>
+</body></html>
