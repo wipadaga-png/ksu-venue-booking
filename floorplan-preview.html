@@ -98,7 +98,13 @@
     function renderCampus(){
       const box=$('campus');box.replaceChildren();
       if(!state.structure){setMsg(box,'ไม่สามารถโหลดข้อมูลสถานที่จาก Status API ได้',true);return}
-      const venues=state.structure.venues.filter(v=>v.code!=='P003');
+      
+const venues = state.structure.venues.filter(
+  (v, i, all) =>
+    v.code !== 'P003' &&
+    all.findIndex(item => item.code === v.code) === i
+);
+
       $('venueCount').textContent=venues.length+' อาคาร/พื้นที่';
       venues.forEach((v,i)=>{
         const b=el('button',{class:'venue'+(state.originVenue===v.code?' selected':''),'type':'button','aria-label':'เลือก '+v.name});
