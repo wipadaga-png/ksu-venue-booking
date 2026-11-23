@@ -238,8 +238,83 @@
         const s=statusFor(room),card=el('div',{class:'room-card'});card.appendChild(el('h3',{},room.name));
         const lines=[['รหัสห้อง',room.code],['ชั้น',state.structure.floors.find(f=>f.code===room.floorCode)?.name||'ไม่ระบุ'],['ประเภท',room.type],['ความจุ',room.capacity+' คน'],['รายละเอียด',room.description||'-'],['สถานะ',s?s.status:'ไม่สามารถตรวจสอบได้']];
         lines.forEach(([k,v])=>{const p=el('p');p.append(el('strong',{},k+': '),document.createTextNode(String(v)));card.appendChild(p)});
-        const button=el('button',{class:'btn',type:'button',disabled:'disabled'},s?.available?'ยังไม่เปิดจองรายห้อง':'ไม่สามารถส่งคำขอจอง');button.style.marginTop='11px';card.appendChild(button);
-        card.appendChild(el('p',{class:'sub'},'ระบบบันทึกคำขอจองรายห้องยังต้องพัฒนาและทดสอบก่อนเปิดใช้งาน'));box.appendChild(card)
+       
+const button = el(
+  'button',
+  {
+    class: 'btn',
+    type: 'button'
+  },
+  s?.available === true
+    ? 'จองห้องนี้'
+    : 'ไม่พร้อมให้จอง'
+);
+
+button.disabled = !(
+  s?.available === true &&
+  room.bookable !== false
+);
+
+button.style.marginTop = '11px';
+
+button.onclick = function () {
+
+  const url = new URL(
+    'https://script.google.com/macros/s/AKfycbxuD4941h6anpbaJUXeI7R5Z-Ol9rydv3h8o3MmXgyGJXHfHJpwiKLdJyeklloKZUOz/exec'
+  );
+
+  url.searchParams.set('page', 'room');
+
+  url.searchParams.set(
+    'place',
+    room.venueCode
+  );
+
+  url.searchParams.set(
+    'floor',
+    room.floorCode
+  );
+
+  url.searchParams.set(
+    'roomCode',
+    room.code
+  );
+
+  url.searchParams.set(
+    'date',
+    $('date').value
+  );
+
+  url.searchParams.set(
+    'start',
+    $('start').value
+  );
+
+  url.searchParams.set(
+    'end',
+    $('end').value
+  );
+
+  window.open(
+    url.toString(),
+    '_blank',
+    'noopener,noreferrer'
+  );
+
+};
+
+card.appendChild(button);
+
+card.appendChild(
+  el(
+    'p',
+    { class: 'sub' },
+    'ตรวจสอบสถานะห้องอีกครั้งก่อนส่งคำขอจอง'
+  )
+);
+
+box.appendChild(card);
+
       }
     }
     async function refreshStatus(){
