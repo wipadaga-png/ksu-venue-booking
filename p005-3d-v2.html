@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>ยิมเก่า P005 — โมเดล 3D | มหาวิทยาลัยกาฬสินธุ์</title>
+<style>
+:root{--blue:#1b6594;--navy:#123f61;--bg:#eef4f8;--green:#22c55e;--amber:#f59e0b;--busy:#3b82f6;--red:#ef4444;--muted:#637b8f}
+*{box-sizing:border-box}body{font-family:Tahoma,'Noto Sans Thai',Arial,sans-serif;background:var(--bg);color:#173c56;margin:0;line-height:1.55}
+header{background:linear-gradient(110deg,#133b60,#187d96);padding:25px max(20px,4vw);color:white}header h1{font-size:clamp(21px,3vw,30px);margin:3px 0}header p{font-size:13px;margin:0;color:#daf0f8}
+a{color:inherit}main{max-width:1440px;margin:auto;padding:21px}
+.toolbar{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:18px}
+.field{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#566b7e;font-weight:bold}
+input{background:white;border:1px solid #cbdce6;border-radius:10px;padding:11px;min-height:44px;font:inherit;color:#164365}
+button{font:inherit;cursor:pointer}button:focus-visible{outline:3px solid #1696ca;outline-offset:3px}
+.primary{background:#176a9b;color:white;padding:11px 17px;border:0;border-radius:11px;min-height:44px;font-weight:bold}
+#msg{font-size:12px;color:#46687b;line-height:1.5}
+.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(340px,.75fr);gap:17px;align-items:start}
+.card{background:white;border:1px solid #dae6ed;border-radius:18px;overflow:hidden;box-shadow:0 12px 28px #1a49660b}
+.card-head{padding:16px 20px;border-bottom:1px solid #e1ebf0;display:flex;justify-content:space-between;align-items:center;gap:12px}
+h2{margin:0;font-size:18px}h3{margin:13px 0 6px;font-size:15px}.small{color:var(--muted);font-size:12px}
+#scene{height:min(68vh,650px);min-height:420px;background:radial-gradient(circle at 47% 33%,#f5fcff,#dcebf0 77%);position:relative}
+#scene canvas{display:block;width:100%;height:100%}
+.overlay{position:absolute;z-index:2;pointer-events:none;left:15px;top:14px;background:#ffffffdc;padding:9px 12px;border:1px solid #dde8ed;border-radius:10px;color:#3e6477;font-size:12px;max-width:290px}
+.loading{display:flex;justify-content:center;align-items:center;height:100%;text-align:center;color:#54728a;font-size:14px;padding:25px}
+.controls{padding:12px 18px;border-top:1px solid #e4edf1;display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;color:#516b7c;font-size:12px}
+.swatches{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle;margin-right:5px}
+.side{padding:18px 19px 22px}.pillbox{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 17px}.pill{border:1px solid #d1e1e9;background:#eff6fa;border-radius:10px;padding:9px 13px;font-weight:bold;color:#2b607d}.pill.sel{background:#176a9b;color:white;border-color:#176a9b}
+.rooms{display:grid;gap:9px}.room{border:1px solid #d8e4ec;background:white;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;width:100%}.room.sel{border-color:#207dae;background:#f0f8fd}.room strong{font-size:14px}.badge{font-size:11px;color:white;padding:5px 9px;border-radius:30px;white-space:nowrap}
+.info{border:1px solid #d9e8ee;border-radius:13px;background:#f5f9fb;padding:14px;margin-top:15px}.info p{font-size:13px;margin:6px 0}.info h3{margin:0 0 9px}
+.notice{font-size:12px;line-height:1.7;color:#586c80;background:#eef3f7;border-radius:11px;padding:11px 13px;margin-top:13px}
+.note{font-size:12px;line-height:1.65;margin-top:15px;color:#667b8d}
+.scene-actions{display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:12px 18px;background:#f5fafc;border-top:1px solid #e3edf2}.scene-actions .pill{margin:0;padding:8px 13px}.scene-actions .small{margin-left:auto}@media(max-width:930px){.layout{grid-template-columns:1fr}#scene{height:520px}}
+@media(max-width:500px){main{padding:12px}#scene{min-height:355px;height:410px}.toolbar .field{flex:1}.card-head{padding:12px 15px}}
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<header><div style="font-size:11px;letter-spacing:1.4px;color:#ccecf7">KALASIN UNIVERSITY · NA MON CAMPUS</div><h1>โมเดล 3D ยิมเก่า P005 — สนาม Y01 และ Y02</h1><p>หมุน • ซูม • เลือกสนาม Y01/Y02 • ตรวจสอบสถานะจาก Google Sheets</p></header>
+<main>
+<p style="margin:0 0 14px"><a href="campus-map-3d-v4.html" style="font-size:13px;color:#175e88;font-weight:bold;text-decoration:none">← กลับไปแผนที่มหาวิทยาลัย</a></p>
+
+<div class="toolbar">
+ <label class="field">วันที่ใช้งาน<input type="date" id="date"></label>
+ <label class="field">เวลาเริ่ม<input type="time" id="start" value="09:00"></label>
+ <label class="field">เวลาสิ้นสุด<input type="time" id="end" value="10:00"></label>
+ <button class="primary" id="refresh" type="button">ตรวจสอบสถานะใหม่</button>
+ <span id="msg" role="status" aria-live="polite">กำลังเตรียมข้อมูล…</span>
+</div>
+<div class="layout">
+ <section class="card">
+  <div class="card-head"><div><h2>ยิมเก่า P005 — มุมมอง 3 มิติ</h2><div class="small">แบบจำลองโรงยิมพร้อมสนาม 2 โซน • คลิกเลือกแต่ละสนาม • ซ่อน/แสดงหลังคาได้</div></div><span class="small">Three.js / WebGL</span></div>
+  <div id="scene"><div id="loading" class="loading">กำลังโหลดโมเดล 3D…<br>หากไม่ปรากฏโมเดล กรุณาตรวจสอบอินเทอร์เน็ตและการโหลด Three.js</div><div class="overlay">🖱️ ลากเพื่อหมุน • เลื่อนล้อเมาส์เพื่อซูม<br>คลิกพื้นสีภายในห้องเพื่อดูข้อมูล • ป้ายชั้นอยู่ด้านข้าง</div></div>
+  <div class="scene-actions"><button id="roof" class="pill" type="button" aria-pressed="false">แสดงหลังคา</button><button id="resetCam" class="pill" type="button">ตั้งมุมมองใหม่</button><span class="small">ชั้นที่แสดง: <strong id="floorMode">ทุกชั้น</strong></span></div><div class="controls"><div class="swatches"><span><i class="dot" style="background:#22c55e"></i>ว่าง</span><span><i class="dot" style="background:#f59e0b"></i>รออนุมัติ</span><span><i class="dot" style="background:#3b82f6"></i>อนุมัติแล้ว</span><span><i class="dot" style="background:#64748b"></i>ตรวจสอบไม่ได้</span></div><span>รายละเอียดอาคารเป็นตัวอย่าง ยังไม่ใช่แบบแปลนหรือรูปร่างจริง</span></div>
+ </section>
+ <section class="card"><div class="card-head"><h2>ชั้นและสนาม</h2><span class="small">ข้อมูลจาก Status API</span></div><div class="side"><div class="small">ยิมเก่า (P005)</div><h3>เลือกมุมมองชั้น</h3><div class="pillbox" id="floors"></div><h3>สนามและพื้นที่ที่เปิดให้ดูสถานะ</h3><div class="rooms" id="rooms"><div class="small">กำลังโหลดข้อมูล…</div></div><div class="info" id="info"><div class="small">คลิกพื้นสนามบนโมเดล 3D หรือรายชื่อสนามด้านบน</div></div><div class="notice">เวอร์ชันทดลอง: แยกแสดงสถานะ Y01/Y02 แต่ยังไม่เปิดให้ส่งคำขอจองรายสนาม จนกว่าระบบจองและ Admin จะรองรับรหัสห้องและตรวจสอบการจองซ้ำได้</div></div></section>
+</div>
+<p class="note">รุ่นนี้เพิ่มสิ่งก่อสร้างประกอบแบบจำลองเท่านั้น ไม่อ้างว่าผนัง บันได ทางเดิน และตำแหน่งประตูตรงตามอาคารจริง • ข้อมูลจาก Status API เดิม • เส้นสนาม ผนัง ประตู และที่ตั้งแต่ละโซนในโมเดลเป็นภาพสมมติ ไม่ใช่แบบก่อสร้าง • สถานะว่างไม่ได้ยืนยันว่าจองสำเร็จ</p>
+</main>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+const API='https://script.google.com/a/macros/ksu.ac.th/s/AKfycbxtrvIz7u41Nn2w9z31KrN3OMBJRyH86VPRIp1ePKcDranZqIBVyCvltuIdonbRVOkk/exec';
+const P='P005';
+const $=id=>document.getElementById(id);
+const palette={'ว่าง':0x22c55e,'รออนุมัติ':0xf59e0b,'กำลังใช้งาน':0x3b82f6,'ปิดปรับปรุง':0xef4444,'ไม่เปิดให้จอง':0x64748b};
+const statusColor=s=>palette[s]??0x64748b;
+const statusText=s=>s?.status||'ตรวจสอบไม่ได้';
+const state={structure:null,status:null,floor:'all',selected:'',roomMeshes:[],layer:null,roof:null,showRoof:false,seq:0};
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xe6f1f7);
+const camera=new THREE.PerspectiveCamera(44,1,.1,500);camera.position.set(25,19,27);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;
+$('scene').appendChild(renderer.domElement);$('loading')?.remove();
+const orbit=new OrbitControls(camera,renderer.domElement);orbit.target.set(0,1.8,0);orbit.minDistance=12;orbit.maxDistance=70;orbit.maxPolarAngle=Math.PI*.49;orbit.enableDamping=true;orbit.update();
+scene.add(new THREE.HemisphereLight(0xffffff,0xb7d1d9,2.1));
+const light=new THREE.DirectionalLight(0xffffff,2.0);light.position.set(-11,24,13);light.castShadow=true;light.shadow.mapSize.set(1024,1024);light.shadow.camera.left=-32;light.shadow.camera.right=32;light.shadow.camera.top=32;light.shadow.camera.bottom=-32;scene.add(light);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(64,54),new THREE.MeshStandardMaterial({color:0xd4e7dc,roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.3;ground.receiveShadow=true;scene.add(ground);
+const grid=new THREE.GridHelper(64,32,0xb3cebf,0xc2dbd0);grid.position.y=-.28;scene.add(grid);
+const main=new THREE.Group();scene.add(main);
+function box(g,w,h,d,x,y,z,c,opacity=1){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color:c,roughness:.86,transparent:opacity<1,opacity,depthWrite:opacity>=1,side:THREE.DoubleSide}));m.position.set(x,y,z);m.castShadow=opacity===1;m.receiveShadow=true;g.add(m);return m}
+function cylinder(g,r,h,x,y,z,color){const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,10),new THREE.MeshStandardMaterial({color,roughness:.7}));m.position.set(x,y,z);m.castShadow=true;g.add(m);return m}
+function line(g,points,color=0xffffff){const m=new THREE.Line(new THREE.BufferGeometry().setFromPoints(points.map(p=>new THREE.Vector3(p[0],p[1],p[2]))),new THREE.LineBasicMaterial({color,depthTest:true}));g.add(m);return m}
+function rectangle(g,x,w,d,y=.24){line(g,[[x-w/2,y,-d/2],[x+w/2,y,-d/2],[x+w/2,y,d/2],[x-w/2,y,d/2],[x-w/2,y,-d/2]])}
+function sign(text){const canvas=document.createElement('canvas');canvas.width=540;canvas.height=140;const c=canvas.getContext('2d');c.fillStyle='#ffffffed';c.beginPath();c.roundRect(8,10,524,120,20);c.fill();c.strokeStyle='#8fbac8';c.lineWidth=4;c.stroke();c.textAlign='center';c.textBaseline='middle';c.font='bold 55px Tahoma, Arial';c.fillStyle='#164862';c.fillText(text,270,70,490);const tx=new THREE.CanvasTexture(canvas);tx.colorSpace=THREE.SRGBColorSpace;const m=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthTest:false}));m.scale.set(5.3,1.37,1);return m}
+function floors(){return (state.structure?.floors||[]).filter(f=>f.venueCode===P).sort((a,b)=>a.order-b.order)}
+function rooms(){return (state.structure?.rooms||[]).filter(r=>r.venueCode===P)}
+function sFor(r){return state.status?.rooms?.find(x=>x.venueCode===P&&x.code===r.code)||null}
+function rId(r){return r.venueCode+':'+r.code}
+function makeNet(g,x,w){for(const dx of [-w/2,w/2])cylinder(g,.07,1.8,x+dx,1.1,0,0x6d8292);box(g,w, .035,.035,x,1.77,0,0xe4e9ef);for(let n=1;n<15;n++)box(g,.013,1.05,.018,x-w/2+n*w/15,1.18,0,0xe4e9ef,.8);for(let n=1;n<5;n++)box(g,w,.013,.013,x, .73+n*.22,0,0xe4e9ef,.7)}
+function markCourt(g,x,w,d,isBadminton){const y=.27;rectangle(g,x,w,d,y);line(g,[[x-w/2,y,0],[x+w/2,y,0]]);if(isBadminton){rectangle(g,x,w*.80,d*.85,y);for(const dx of [-w*.28,w*.28])line(g,[[x+dx,y,-d*.42],[x+dx,y,d*.42]]);for(const zz of [-d*.28,d*.28])line(g,[[x-w*.4,y,zz],[x+w*.4,y,zz]])}else{for(const zz of [-d*.33,d*.33])line(g,[[x-w/2,y,zz],[x+w/2,y,zz]])}makeNet(g,x,w*.96)}
+function draw(){
+ if(state.layer){main.remove(state.layer);state.layer.traverse(o=>{o.geometry?.dispose?.();if(o.material){for(const m of (Array.isArray(o.material)?o.material:[o.material])){m.map?.dispose?.();m.dispose?.()}}})}
+ const g=new THREE.Group();main.add(g);state.layer=g;state.roomMeshes=[];state.roof=null;
+ box(g,26,.45,18,0,-.04,0,0xadbfc8);box(g,24,.14,16.2,0,.24,0,0xe7e5d6);
+ // เสาและผนังกระจกถูกย่อ/ตัดเพื่อมองเห็นสนามภายใน เป็นแบบจำลองเท่านั้น
+ for(const x of [-12,12])for(const z of [-7.9,7.9])box(g,.42,5.2,.42,x,2.65,z,0x7b9ca8);
+ for(const x of [-8,-4,0,4,8]){box(g,.20,4.3,.22,x,2.15,-8.06,0x6e91a4);box(g,.20,4.3,.22,x,2.15,8.06,0x6e91a4)}
+ for(const x of [-11.95,11.95]){
+  box(g,.15,1.4,13.6,x,4.16,0,0xa2c6d4,.45);
+  box(g,.15,.35,16,x,.37,0,0x7f9fb0);
+ }
+ for(const z of [-8.01,8.01]){
+  box(g,24,1.22,.16,0,4.17,z,0xa6c9d8,.38);
+  box(g,24,.26,.18,0,.45,z,0x859fae)
+ }
+ // ประตูด้านหน้าสองตำแหน่ง
+ for(const x of [-4,4]){box(g,2.6,2.55,.15,x,1.63,8.16,0x9cbcc7,.57);box(g,.10,2.6,.17,x,1.63,8.29,0x5e7d91);box(g,2.7,.11,.19,x,2.88,8.26,0x55778d)}
+ const filtered=rooms().filter(r=>state.floor==='all'||r.floorCode===state.floor);
+ const n=Math.max(rooms().length,2),courtWidth=22/n;
+ rooms().forEach((r,k)=>{
+  const x=-11+courtWidth*(k+.5);
+  const active=state.selected===rId(r);
+  const isVisible=state.floor==='all'||r.floorCode===state.floor;
+  if(!isVisible)return;
+  const typeColor=r.code==='Y02'?0x5d94b1:0x559f80;
+  const surface=box(g,courtWidth-.5,.085,13.4,x,.3,-.2,typeColor);
+  surface.userData.room=r;state.roomMeshes.push(surface);
+  const status=sFor(r);const stripe=box(g,courtWidth-.4,.13,.28,x,.37,6.53,statusColor(status?.status));stripe.userData.room=r;state.roomMeshes.push(stripe);
+  if(active){box(g,courtWidth-.3,.1,.19,x,.42,-6.82,0x0c679b);for(const edgeX of [x-(courtWidth-.4)/2,x+(courtWidth-.4)/2])box(g,.12,.16,13.2,edgeX,.43,-.2,0x0b6098)}
+  markCourt(g,x,courtWidth-2.4,11.6,r.code==='Y02');
+  const t=sign(r.code+' • '+statusText(status));t.position.set(x,5.8,-.75);g.add(t);
+ });
+ // ม้านั่งริมสนามแทนพื้นที่ผู้ชมแบบจำลอง
+ for(let zz of [-6.8,6.9])for(let xx of [-8,0,8]){box(g,2.2,.15,.55,xx,.73,zz,0x728b95);for(const dx of [-.85,.85])box(g,.1,.54,.1,xx+dx,.46,zz,0x718795)}
+ // แผ่นป้ายชื่อโครงการ
+ const title=sign('P005  โรงยิมเก่า');title.scale.set(8.1,1.55,1);title.position.set(0,6.75,-7.9);g.add(title);
+ // หลังคาทรงจั่วเป็นแบบจำลอง
+ const roof=new THREE.Group();g.add(roof);state.roof=roof;
+ for(const side of [-1,1]){const p=box(roof,12.8,.28,19,side*6.2,5.65,0,0x547e90);p.rotation.z=side*.16}
+ box(roof,.25,.18,19,0,6.7,0,0x345e72);roof.visible=state.showRoof;
+ if(state.floor!=='all')roof.visible=false;
+ $('roof').textContent=state.showRoof?'ซ่อนหลังคา':'แสดงหลังคา';$('roof').setAttribute('aria-pressed',String(state.showRoof));$('roof').disabled=state.floor!=='all';
+ $('floorMode').textContent=state.floor==='all'?'ทุกชั้น':floors().find(f=>f.code===state.floor)?.name||state.floor;
+}
+function renderSidebar(){
+ const fs=floors(),nav=$('floors');nav.replaceChildren();
+ [{code:'all',name:'ดูทั้งยิม'},...fs.map(f=>({code:f.code,name:f.name}))].forEach(f=>{const b=document.createElement('button');b.type='button';b.className='pill'+(state.floor===f.code?' sel':'');b.textContent=f.name;b.onclick=()=>{state.floor=f.code;state.selected='';draw();renderSidebar()};nav.append(b)});
+ const list=$('rooms');list.replaceChildren();const shown=rooms().filter(r=>state.floor==='all'||r.floorCode===state.floor);
+ if(!shown.length){list.textContent='ยังไม่มีข้อมูลสนามหรือพื้นที่ย่อยในชั้นนี้';return}
+ shown.forEach(r=>{const s=sFor(r),b=document.createElement('button');b.type='button';b.className='room'+(state.selected===rId(r)?' sel':'');const text=document.createElement('span'),strong=document.createElement('strong');strong.textContent=r.name;const small=document.createElement('div');small.className='small';small.textContent=r.code+' · '+(fs.find(f=>f.code===r.floorCode)?.name||r.floorCode);text.append(strong,small);const badge=document.createElement('span');badge.className='badge';badge.textContent=statusText(s);badge.style.backgroundColor='#'+statusColor(s?.status).toString(16).padStart(6,'0');b.append(text,badge);b.onclick=()=>selectRoom(r);list.append(b)});
+ const info=$('info');info.replaceChildren();const r=rooms().find(r=>rId(r)===state.selected);
+ if(!r){const txt=document.createElement('div');txt.className='small';txt.textContent='คลิกพื้นสนามบนโมเดล 3D หรือชื่อพื้นที่เพื่อดูรายละเอียด';info.append(txt);return}
+ const h=document.createElement('h3');h.textContent=r.name;info.append(h);const s=sFor(r);
+ [['รหัสพื้นที่',r.code],['ชั้น/ระดับ',fs.find(f=>f.code===r.floorCode)?.name||r.floorCode],['ประเภท',r.type],['ความจุ',r.capacity+' คน'],['รายละเอียด',r.description||'-'],['สถานะตามวันที่และเวลา',statusText(s)],['เปิดให้จองตามการตั้งค่า',r.bookable?'ใช่':'ไม่']].forEach(([k,v])=>{const p=document.createElement('p');const strong=document.createElement('strong');strong.textContent=k+': ';p.append(strong,document.createTextNode(String(v)));info.append(p)});
+ const notice=document.createElement('p');notice.className='small';notice.textContent='สถานะว่างเป็นผลตรวจสอบเบื้องต้น ยังไม่เปิดให้จองแยกสนามจากหน้านี้';info.append(notice)
+}
+function selectRoom(r){state.selected=rId(r);if(state.floor!=='all'&&state.floor!==r.floorCode)state.floor=r.floorCode;draw();renderSidebar()}
+const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let down=null;
+renderer.domElement.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY}});
+renderer.domElement.addEventListener('pointerup',e=>{if(!down)return;const was=down;down=null;if(Math.hypot(e.clientX-was.x,e.clientY-was.y)>6)return;const rect=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);raycaster.setFromCamera(pointer,camera);const hit=raycaster.intersectObjects(state.roomMeshes,false)[0];if(hit?.object.userData.room)selectRoom(hit.object.userData.room)});
+function resize(){const rect=$('scene').getBoundingClientRect();if(!rect.width||!rect.height)return;camera.aspect=rect.width/rect.height;camera.updateProjectionMatrix();renderer.setSize(rect.width,rect.height,false)}
+window.addEventListener('resize',resize);if('ResizeObserver'in window)new ResizeObserver(resize).observe($('scene'));
+function loop(){requestAnimationFrame(loop);orbit.update();renderer.render(scene,camera)}resize();loop();
+$('roof').onclick=()=>{state.showRoof=!state.showRoof;draw()};
+$('resetCam').onclick=()=>{camera.position.set(25,19,27);orbit.target.set(0,1.8,0);orbit.update()};
+function jsonp(params){return new Promise((resolve,reject)=>{const callback='ksu_p005_'+Date.now()+'_'+Math.floor(Math.random()*1e9);const url=new URL(API);Object.entries({...params,callback}).forEach(([k,v])=>url.searchParams.set(k,String(v)));const script=document.createElement('script');let closed=false,timer;const finish=(err,value)=>{if(closed)return;closed=true;clearTimeout(timer);script.remove();delete window[callback];err?reject(err):resolve(value)};window[callback]=data=>finish(null,data);script.onerror=()=>finish(new Error('เชื่อม Status API ไม่ได้ ตรวจสอบสิทธิ์ Web App'));timer=setTimeout(()=>finish(new Error('Status API ไม่ตอบกลับ')),15000);script.src=url.toString();document.head.append(script)})}
+async function refresh(){if(!state.structure)return;const date=$('date').value,start=$('start').value,end=$('end').value,seq=++state.seq;state.status=null;draw();renderSidebar();if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!start||!end||start>=end){$('msg').textContent='กรุณาระบุวันและเวลาให้ถูกต้อง';return}$('msg').textContent='กำลังตรวจสอบสถานะ…';try{const res=await jsonp({action:'room-status',date,start,end});if(seq!==state.seq)return;if(res.success!==true||!Array.isArray(res.rooms))throw new Error(res.message||'API ส่งข้อมูลไม่ถูกต้อง');state.status=res;$('msg').textContent='อัปเดตสถานะจาก API แล้ว'}catch(e){if(seq!==state.seq)return;$('msg').textContent='ไม่สามารถตรวจสอบสถานะ: '+e.message}draw();renderSidebar()}
+async function boot(){const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());$('date').value=today;$('refresh').onclick=refresh;['date','start','end'].forEach(id=>$(id).addEventListener('change',refresh));$('msg').textContent='กำลังอ่านข้อมูลยิมเก่า…';try{const res=await jsonp({action:'structure'});if(res.success!==true||!Array.isArray(res.rooms)||!Array.isArray(res.floors))throw new Error(res.message||'โครงสร้างข้อมูลไม่ถูกต้อง');state.structure=res;draw();renderSidebar();refresh()}catch(e){$('msg').textContent='โหลดข้อมูลไม่สำเร็จ: '+e.message;$('rooms').textContent='ไม่สามารถโหลดข้อมูลพื้นที่';draw()}}
+boot();
+</script>
+</body>
+</html>

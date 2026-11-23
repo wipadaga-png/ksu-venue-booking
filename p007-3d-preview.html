@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>โมเดล 3D สนามฟุตซอล P007 | มหาวิทยาลัยกาฬสินธุ์</title>
+<style>
+:root{--blue:#1b6594;--navy:#123f61;--bg:#eef4f8;--green:#22c55e;--amber:#f59e0b;--busy:#3b82f6;--red:#ef4444;--muted:#637b8f}
+*{box-sizing:border-box}body{font-family:Tahoma,'Noto Sans Thai',Arial,sans-serif;background:var(--bg);color:#173c56;margin:0;line-height:1.55}
+header{background:linear-gradient(110deg,#133b60,#187d96);padding:25px max(20px,4vw);color:white}header h1{font-size:clamp(21px,3vw,30px);margin:3px 0}header p{font-size:13px;margin:0;color:#daf0f8}
+a{color:inherit}main{max-width:1440px;margin:auto;padding:21px}
+.toolbar{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:18px}
+.field{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#566b7e;font-weight:bold}
+input{background:white;border:1px solid #cbdce6;border-radius:10px;padding:11px;min-height:44px;font:inherit;color:#164365}
+button{font:inherit;cursor:pointer}button:focus-visible{outline:3px solid #1696ca;outline-offset:3px}
+.primary{background:#176a9b;color:white;padding:11px 17px;border:0;border-radius:11px;min-height:44px;font-weight:bold}
+#msg{font-size:12px;color:#46687b;line-height:1.5}
+.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(340px,.75fr);gap:17px;align-items:start}
+.card{background:white;border:1px solid #dae6ed;border-radius:18px;overflow:hidden;box-shadow:0 12px 28px #1a49660b}
+.card-head{padding:16px 20px;border-bottom:1px solid #e1ebf0;display:flex;justify-content:space-between;align-items:center;gap:12px}
+h2{margin:0;font-size:18px}h3{margin:13px 0 6px;font-size:15px}.small{color:var(--muted);font-size:12px}
+#scene{height:min(68vh,650px);min-height:420px;background:radial-gradient(circle at 47% 33%,#f5fcff,#dcebf0 77%);position:relative}
+#scene canvas{display:block;width:100%;height:100%}
+.overlay{position:absolute;z-index:2;pointer-events:none;left:15px;top:14px;background:#ffffffdc;padding:9px 12px;border:1px solid #dde8ed;border-radius:10px;color:#3e6477;font-size:12px;max-width:290px}
+.loading{display:flex;justify-content:center;align-items:center;height:100%;text-align:center;color:#54728a;font-size:14px;padding:25px}
+.controls{padding:12px 18px;border-top:1px solid #e4edf1;display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;color:#516b7c;font-size:12px}
+.swatches{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle;margin-right:5px}
+.side{padding:18px 19px 22px}.pillbox{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 17px}.pill{border:1px solid #d1e1e9;background:#eff6fa;border-radius:10px;padding:9px 13px;font-weight:bold;color:#2b607d}.pill.sel{background:#176a9b;color:white;border-color:#176a9b}
+.rooms{display:grid;gap:9px}.room{border:1px solid #d8e4ec;background:white;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;width:100%}.room.sel{border-color:#207dae;background:#f0f8fd}.room strong{font-size:14px}.badge{font-size:11px;color:white;padding:5px 9px;border-radius:30px;white-space:nowrap}
+.info{border:1px solid #d9e8ee;border-radius:13px;background:#f5f9fb;padding:14px;margin-top:15px}.info p{font-size:13px;margin:6px 0}.info h3{margin:0 0 9px}
+.notice{font-size:12px;line-height:1.7;color:#586c80;background:#eef3f7;border-radius:11px;padding:11px 13px;margin-top:13px}
+.note{font-size:12px;line-height:1.65;margin-top:15px;color:#667b8d}
+.scene-actions{display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:12px 18px;background:#f5fafc;border-top:1px solid #e3edf2}.scene-actions .pill{margin:0;padding:8px 13px}.scene-actions .small{margin-left:auto}@media(max-width:930px){.layout{grid-template-columns:1fr}#scene{height:520px}}
+@media(max-width:500px){main{padding:12px}#scene{min-height:355px;height:410px}.toolbar .field{flex:1}.card-head{padding:12px 15px}}
+
+/* P007 — controls */
+.field-label{font-size:12px;color:#526d81;font-weight:700}
+.pitch-actions{display:flex;gap:9px;flex-wrap:wrap;padding:12px 18px;background:#f5fafc;border-top:1px solid #e0edf3}
+.pitch-actions .pill{padding:8px 13px}
+.pitch-actions .small{margin-left:auto;align-self:center}
+#fieldStatus{font-size:13px;font-weight:700}
+#statusChip{display:inline-block;border-radius:22px;padding:5px 11px;color:#fff;background:#64748b;font-size:12px}
+.scene-note{font-size:11px;color:#5e7889;margin:4px 0 11px}
+.back{color:#195d87;text-decoration:none;font-size:13px;font-weight:700}
+.back:hover{text-decoration:underline}
+@media(max-width:500px){.pitch-actions .small{margin-left:0;width:100%}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"}}</script>
+</head><body>
+<header><div style="font-size:11px;letter-spacing:1.4px;color:#ccecf7">KALASIN UNIVERSITY · NA MON CAMPUS</div><h1>สนามฟุตซอล P007 — โมเดล 3D</h1><p>หมุน / ซูม / คลิกสนาม F01 / ตรวจสอบสถานะจาก Google Sheets</p></header>
+<main>
+<p style="margin:0 0 14px"><a class="back" href="campus-map-3d-v4.html">← กลับไปแผนที่มหาวิทยาลัย</a></p>
+<div class="toolbar">
+<label class="field">วันที่ต้องการใช้<input id="date" type="date"></label>
+<label class="field">เวลาเริ่มต้น<input id="start" type="time" value="09:00"></label>
+<label class="field">เวลาสิ้นสุด<input id="end" type="time" value="10:00"></label>
+<button class="primary" id="refresh" type="button">ตรวจสอบสถานะใหม่</button>
+<span id="msg" role="status" aria-live="polite">กำลังอ่านข้อมูล…</span>
+</div>
+<div class="layout">
+<section class="card">
+<div class="card-head"><div><h2>มุมมองสามมิติ — สนามฟุตซอล</h2><div class="small">สนาม ห่วงรั้ว ประตูฟุตบอล และอัฒจันทร์แบบจำลอง</div></div><span class="small">Three.js / WebGL</span></div>
+<div id="scene"><div id="loading" class="loading">กำลังโหลดฉาก 3D…</div><div class="overlay">ลากเมาส์เพื่อหมุน • ล้อเมาส์เพื่อซูม<br>คลิกบนพื้นสนามเพื่อเลือก F01</div></div>
+<div class="pitch-actions"><button id="resetCam" class="pill" type="button">ตั้งมุมมองใหม่</button><button id="viewTop" class="pill" type="button">มองจากด้านบน</button><button id="viewIso" class="pill" type="button">มุมมองอาคาร 3D</button><span class="small">คลิกสนามหรือรายการด้านขวาเพื่อดูรายละเอียด</span></div>
+<div class="controls"><div class="swatches"><span><i class="dot" style="background:#22c55e"></i>ว่าง</span><span><i class="dot" style="background:#f59e0b"></i>รออนุมัติ</span><span><i class="dot" style="background:#3b82f6"></i>มีรายการอนุมัติ</span><span><i class="dot" style="background:#64748b"></i>ตรวจสอบไม่ได้</span></div><span>รูปทรงและเส้นสนามเป็นภาพจำลอง ไม่ใช่แบบสำรวจจริง</span></div>
+</section>
+<section class="card"><div class="card-head"><h2>รายละเอียดสนาม</h2><span class="small">Status API</span></div>
+<div class="side"><div class="small">สนามฟุตซอล — P007</div><h3>ชั้น/ระดับ</h3><div class="pillbox" id="floors"><span class="small">กำลังโหลด…</span></div><h3>สนามที่ตรวจสอบสถานะได้</h3><div id="rooms" class="rooms"><div class="small">กำลังโหลดรายการสนาม…</div></div><div class="scene-note">สถานะสำหรับวันที่และช่วงเวลาที่เลือกเท่านั้น ไม่ใช่สถานะทั้งวัน</div><div id="info" class="info"><div class="small">คลิกสนามบนโมเดลหรือรายชื่อด้านบน</div></div><div class="notice">เวอร์ชันทดลองแสดงสถานะเท่านั้น ยังไม่เปิดจองสนามผ่านหน้านี้ จนกว่าระบบบันทึกการจองจะรองรับรหัสห้องหรือพื้นที่ย่อย และตรวจสอบการจองซ้ำที่ระดับสนามได้</div></div></section>
+</div><p class="note">แผนผังอ้างอิงจุดหมายเลข 10 ตามข้อมูลที่ผู้ใช้ยืนยันว่าเป็น P007 • เส้นสนาม ประตู รั้ว และอัฒจันทร์เป็นรูปทรงจำลอง ไม่ใช่พิกัด ขนาดจริง หรือแบบก่อสร้าง • Google Apps Script ใช้สำหรับอ่านสถานะโดยไม่แสดงข้อมูลส่วนตัวผู้จอง</p>
+</main>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const API='https://script.google.com/a/macros/ksu.ac.th/s/AKfycbxtrvIz7u41Nn2w9z31KrN3OMBJRyH86VPRIp1ePKcDranZqIBVyCvltuIdonbRVOkk/exec';
+const VENUE='P007';
+const $=id=>document.getElementById(id);
+const COLOR={'ว่าง':0x22c55e,'รออนุมัติ':0xf59e0b,'กำลังใช้งาน':0x3b82f6,'ปิดปรับปรุง':0xef4444,'ไม่เปิดให้จอง':0x64748b};
+const rgb=status=>COLOR[status]??0x64748b;
+const colorCss=status=>'#'+rgb(status).toString(16).padStart(6,'0');
+const st={structure:null,availability:null,selected:'',floor:'all',pickables:[],world:null,seq:0};
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xe6f2f7);
+const camera=new THREE.PerspectiveCamera(46,1,.1,250);camera.position.set(29,25,31);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;
+$('scene').append(renderer.domElement);$('loading')?.remove();
+const orbit=new OrbitControls(camera,renderer.domElement);orbit.target.set(0,.4,0);orbit.minDistance=14;orbit.maxDistance=80;orbit.maxPolarAngle=Math.PI*.495;orbit.enableDamping=true;orbit.update();
+scene.add(new THREE.HemisphereLight(0xffffff,0xa3bac3,2.3));
+const sun=new THREE.DirectionalLight(0xffffff,2.3);sun.position.set(-14,32,19);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-38;sun.shadow.camera.right=38;sun.shadow.camera.top=38;sun.shadow.camera.bottom=-38;scene.add(sun);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(75,64),new THREE.MeshStandardMaterial({color:0xd6e9d9}));ground.rotation.x=-Math.PI/2;ground.position.y=-.25;ground.receiveShadow=true;scene.add(ground);
+const grid=new THREE.GridHelper(75,38,0xc8d6c9,0xd3dfd3);grid.position.y=-.24;scene.add(grid);
+const main=new THREE.Group();scene.add(main);
+function meshBox(group,w,h,d,x,y,z,color,opacity=1){const material=new THREE.MeshStandardMaterial({color,roughness:.85,transparent:opacity<1,opacity,depthWrite:opacity===1});const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);m.castShadow=opacity>=1;m.receiveShadow=true;group.add(m);return m}
+function line(group,points,color=0xffffff){const g=new THREE.BufferGeometry().setFromPoints(points.map(p=>new THREE.Vector3(...p)));const l=new THREE.Line(g,new THREE.LineBasicMaterial({color}));group.add(l);return l}
+function rectangle(group,w,d,y=.25){line(group,[[-w/2,y,-d/2],[w/2,y,-d/2],[w/2,y,d/2],[-w/2,y,d/2],[-w/2,y,-d/2]])}
+function curve(group,points,color=0xffffff){line(group,points,color)}
+function arc(group,x,z,r,start,end,y=.29){const points=[];for(let i=0;i<=48;i++){const t=start+(end-start)*(i/48);points.push([x+Math.cos(t)*r,y,z+Math.sin(t)*r])}curve(group,points)}
+function statusFor(room){return st.availability?.rooms?.find(s=>s.venueCode===VENUE&&s.code===room.code)||null}
+function floorList(){return (st.structure?.floors||[]).filter(f=>f.venueCode===VENUE).sort((a,b)=>a.order-b.order)}
+function rooms(){return (st.structure?.rooms||[]).filter(r=>r.venueCode===VENUE)}
+function identity(r){return r.venueCode+':'+r.code}
+function makeGoal(group,z,side){const width=3.8,height=2.0,depth=1.3;const rail=(a,b)=>{const d=new THREE.Vector3(...b).sub(new THREE.Vector3(...a));const m=new THREE.Mesh(new THREE.CylinderGeometry(.058,.058,d.length(),9),new THREE.MeshStandardMaterial({color:0xf5f7fc,metalness:.08}));m.position.copy(new THREE.Vector3(...a).add(new THREE.Vector3(...b)).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());group.add(m)};const zz=z+side*depth;rail([-width/2,.3,z],[-width/2,height+.3,z]);rail([width/2,.3,z],[width/2,height+.3,z]);rail([-width/2,height+.3,z],[width/2,height+.3,z]);rail([-width/2,height+.3,z],[-width/2,height+.3,zz]);rail([width/2,height+.3,z],[width/2,height+.3,zz]);rail([-width/2,height+.3,zz],[width/2,height+.3,zz]);const netColor=0xe9eef2;for(let x=-width/2;x<=width/2+.01;x+=.46){line(group,[[x,.35,zz],[x,height+.26,zz]],netColor)}for(let y=.35;y<=height+.26;y+=.35){line(group,[[-width/2,y,zz],[width/2,y,zz]],netColor)}}
+function seatBlock(group,x,z){const material=0x7396a6;for(let row=0;row<3;row++){meshBox(group,6.9,.35,1.12,x,.65+row*.36,z+row*1.05,material);meshBox(group,6.9,.08,.9,x,.85+row*.36,z+row*1.05,0x9bb4bc)}for(const dx of [-3,3])meshBox(group,.2,1.5,3.7,x+dx,.6,z+1.2,0x667f8c)}
+function rebuild(){
+ if(st.world){main.remove(st.world);st.world.traverse(o=>{o.geometry?.dispose?.();if(o.material){const arr=Array.isArray(o.material)?o.material:[o.material];arr.forEach(m=>{m.map?.dispose?.();m.dispose?.()})}})}
+ const g=new THREE.Group();main.add(g);st.world=g;st.pickables=[];
+ meshBox(g,32,.4,43,0,-.04,0,0xb8c5c3); // surrounding paved area
+ meshBox(g,17.8,.10,29,0,.19,0,0x24816a); // playing surface, illustrative scale
+ for(let x=-8;x<=8;x+=4)meshBox(g,3.8,.015,28.6,x,.25,0,(x%8===0)?0x268772:0x2a9077);
+ // white lines on illustrative pitch
+ rectangle(g,16.7,27.9,.29);line(g,[[-8.35,.29,0],[8.35,.29,0]]);arc(g,0,0,2.4,0,Math.PI*2);
+ // penalty boxes (simplified)
+ for(const side of [-1,1]){const z=side*11.8;line(g,[[-4,.30,z],[4,.30,z]]);line(g,[[-4,.30,z],[-4,.30,side*14]]);line(g,[[4,.30,z],[4,.30,side*14]]);arc(g,0,side*10,1.25,0,Math.PI*2)}
+ makeGoal(g,-14,-1);makeGoal(g,14,1);
+ // fence posts and low see-through perimeter panels
+ for(let x=-10.9;x<=11.1;x+=4.4){for(const z of [-16.3,16.3])meshBox(g,.15,4.7,.15,x,2.45,z,0x748c96)}
+ for(let z=-16.3;z<=16.3;z+=4.66){for(const x of [-11.0,11.0])meshBox(g,.15,4.7,.15,x,2.45,z,0x748c96)}
+ for(const x of [-11.0,11.0])meshBox(g,.07,2,32.6,x,3.6,0,0x8fb2bd,.21);
+ for(const z of [-16.3,16.3])meshBox(g,22,.07,.05,0,4.75,z,0x8aa5b0);
+ seatBlock(g,-18,0);seatBlock(g,18,0);
+ for(const z of [-17.6,17.6])for(const x of [-10,10]){meshBox(g,.22,6.7,.22,x,3.2,z,0x5d7d8a);meshBox(g,1.7,.19,.75,x,6.6,z,0xfff5da)}
+ // one field F01 from Google Sheets; not hardcoding availability
+ const f=rooms().find(r=>r.code==='F01')||rooms()[0];
+ if(f){const availability=statusFor(f);const c=rgb(availability?.status);const m=meshBox(g,16.3,.075,27.6,0,.07,0,c,.18);m.userData.room=f;st.pickables.push(m);
+ // unobtrusive clickable outline (only when selected)
+ if(st.selected===identity(f)){rectangle(g,17.1,28.4,.39);meshBox(g,16.9,.12,.27,0,.38,-14.18,0x155a8a)}
+ const b=meshBox(g,6.3,.10,1.0,0,.39,-15.0,c);b.userData.room=f;st.pickables.push(b);
+ }
+}
+function renderSidebar(){
+ const fs=floorList();$('floors').replaceChildren();
+ const opts=[{code:'all',name:'ดูทั้งสนาม'},...fs.map(f=>({code:f.code,name:f.name}))];
+ for(const f of opts){const b=document.createElement('button');b.className='pill'+(st.floor===f.code?' sel':'');b.type='button';b.textContent=f.name;b.onclick=()=>{st.floor=f.code;st.selected='';rebuild();renderSidebar()};$('floors').append(b)}
+ const list=$('rooms');list.replaceChildren();const all=rooms().filter(r=>st.floor==='all'||r.floorCode===st.floor);
+ if(!all.length){list.textContent='ไม่มีสนามในชั้นหรือระดับที่เลือก';$('info').textContent='ไม่พบข้อมูลสนามจากชีต';return}
+ for(const r of all){const b=document.createElement('button');b.className='room'+(st.selected===identity(r)?' sel':'');b.type='button';const text=document.createElement('span');const title=document.createElement('strong');title.textContent=r.name;const small=document.createElement('div');small.className='small';small.textContent=r.code+' · '+(fs.find(f=>f.code===r.floorCode)?.name||r.floorCode);text.append(title,small);const badge=document.createElement('span');badge.className='badge';const s=statusFor(r);badge.textContent=s?.status||'ยังไม่ทราบสถานะ';badge.style.background=colorCss(s?.status);b.append(text,badge);b.onclick=()=>select(r);list.append(b)}
+ const info=$('info');info.replaceChildren();const r=rooms().find(r=>identity(r)===st.selected);
+ if(!r){const hint=document.createElement('div');hint.className='small';hint.textContent='เลือก F01 จากรายการหรือคลิกพื้นที่สนามบนโมเดล';info.append(hint);return}
+ const h=document.createElement('h3');h.textContent=r.name;info.append(h);
+ const s=statusFor(r);const props=[['รหัสสนาม',r.code],['รหัสสถานที่',r.venueCode],['ชั้น/ระดับ',fs.find(f=>f.code===r.floorCode)?.name||r.floorCode],['ประเภท',r.type],['ความจุ',r.capacity+' คน'],['รายละเอียด',r.description||'-'],['สถานะตามเวลาที่เลือก',s?.status||'ตรวจสอบไม่ได้'],['เปิดให้จองตามการตั้งค่า',r.bookable?'ใช่':'ไม่']];
+ for(const [k,v] of props){const p=document.createElement('p');const strong=document.createElement('strong');strong.textContent=k+': ';p.append(strong,document.createTextNode(String(v)));info.append(p)}
+ const note=document.createElement('div');note.className='notice';note.textContent='ยังไม่เปิดให้ส่งคำขอจองแยกสนามในเวอร์ชันนี้';info.append(note);
+}
+function select(room){st.selected=identity(room);if(st.floor!=='all'&&st.floor!==room.floorCode)st.floor=room.floorCode;rebuild();renderSidebar()}
+const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let down=null;
+renderer.domElement.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY}});
+renderer.domElement.addEventListener('pointerup',e=>{if(!down)return;const start=down;down=null;if(Math.hypot(e.clientX-start.x,e.clientY-start.y)>7)return;const bounds=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-bounds.left)/bounds.width*2-1,-(e.clientY-bounds.top)/bounds.height*2+1);raycaster.setFromCamera(pointer,camera);const hit=raycaster.intersectObjects(st.pickables,false)[0];if(hit?.object.userData.room)select(hit.object.userData.room)});
+function resize(){const rect=$('scene').getBoundingClientRect();if(!rect.width||!rect.height)return;camera.aspect=rect.width/rect.height;camera.updateProjectionMatrix();renderer.setSize(rect.width,rect.height,false)}
+window.addEventListener('resize',resize);if('ResizeObserver'in window)new ResizeObserver(resize).observe($('scene'));
+function loop(){requestAnimationFrame(loop);orbit.update();renderer.render(scene,camera)}resize();loop();
+const reset=()=>{camera.position.set(29,25,31);orbit.target.set(0,.4,0);orbit.update()};
+$('resetCam').onclick=reset;$('viewIso').onclick=reset;
+$('viewTop').onclick=()=>{camera.position.set(.1,46,0);orbit.target.set(0,0,0);orbit.update()};
+function jsonp(params){return new Promise((resolve,reject)=>{const cb='ksu_futsal_'+Date.now()+'_'+Math.floor(Math.random()*1e9);const url=new URL(API);Object.entries({...params,callback:cb}).forEach(([k,v])=>url.searchParams.set(k,String(v)));const script=document.createElement('script');let done=false,timer;function finish(err,data){if(done)return;done=true;clearTimeout(timer);script.remove();delete window[cb];err?reject(err):resolve(data)}window[cb]=v=>finish(null,v);script.onerror=()=>finish(new Error('เชื่อมต่อ Status API ไม่ได้ โปรดตรวจสอบสิทธิ์เข้าถึง'));timer=setTimeout(()=>finish(new Error('Status API ไม่ตอบกลับ')),15000);script.src=url.toString();document.head.append(script)})}
+async function refresh(){if(!st.structure)return;const date=$('date').value,start=$('start').value,end=$('end').value,seq=++st.seq;st.availability=null;rebuild();renderSidebar();if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!start||!end||start>=end){$('msg').textContent='กรุณาระบุวันและเวลาให้ถูกต้อง';return}$('msg').textContent='กำลังตรวจสอบสถานะ…';try{const result=await jsonp({action:'room-status',date,start,end});if(seq!==st.seq)return;if(result?.success!==true||!Array.isArray(result.rooms))throw new Error(result?.message||'ข้อมูลสถานะผิดรูปแบบ');st.availability=result;$('msg').textContent='อัปเดตสถานะจาก API แล้ว'}catch(e){if(seq!==st.seq)return;$('msg').textContent='ไม่สามารถตรวจสอบสถานะ: '+e.message}rebuild();renderSidebar()}
+async function boot(){const current=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const q=new URLSearchParams(window.location.search);$('date').value=/^\d{4}-\d{2}-\d{2}$/.test(q.get('date')||'')?q.get('date'):current;$('start').value=/^\d{2}:\d{2}$/.test(q.get('start')||'')?q.get('start'):'09:00';$('end').value=/^\d{2}:\d{2}$/.test(q.get('end')||'')?q.get('end'):'10:00';$('refresh').onclick=refresh;['date','start','end'].forEach(id=>$(id).addEventListener('change',refresh));$('msg').textContent='กำลังอ่านข้อมูล P007…';try{const result=await jsonp({action:'structure'});if(result?.success!==true||!Array.isArray(result.rooms)||!Array.isArray(result.floors))throw new Error(result?.message||'โครงสร้างข้อมูลไม่ถูกต้อง');st.structure=result;rebuild();renderSidebar();refresh()}catch(e){$('msg').textContent='อ่านโครงสร้างไม่ได้: '+e.message;$('rooms').textContent='ไม่พบข้อมูลสนาม';rebuild()}}
+boot();
+</script></body></html>
