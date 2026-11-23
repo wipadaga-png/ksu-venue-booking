@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>P002 อาคาร 3D รุ่นปรับปรุง — หอประชุมช่อตะแบก</title>
+<style>
+:root{--blue:#1b6594;--navy:#123f61;--bg:#eef4f8;--green:#22c55e;--amber:#f59e0b;--busy:#3b82f6;--red:#ef4444;--muted:#637b8f}
+*{box-sizing:border-box}body{font-family:Tahoma,'Noto Sans Thai',Arial,sans-serif;background:var(--bg);color:#173c56;margin:0;line-height:1.55}
+header{background:linear-gradient(110deg,#133b60,#187d96);padding:25px max(20px,4vw);color:white}header h1{font-size:clamp(21px,3vw,30px);margin:3px 0}header p{font-size:13px;margin:0;color:#daf0f8}
+a{color:inherit}main{max-width:1440px;margin:auto;padding:21px}
+.toolbar{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:18px}
+.field{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#566b7e;font-weight:bold}
+input{background:white;border:1px solid #cbdce6;border-radius:10px;padding:11px;min-height:44px;font:inherit;color:#164365}
+button{font:inherit;cursor:pointer}button:focus-visible{outline:3px solid #1696ca;outline-offset:3px}
+.primary{background:#176a9b;color:white;padding:11px 17px;border:0;border-radius:11px;min-height:44px;font-weight:bold}
+#msg{font-size:12px;color:#46687b;line-height:1.5}
+.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(340px,.75fr);gap:17px;align-items:start}
+.card{background:white;border:1px solid #dae6ed;border-radius:18px;overflow:hidden;box-shadow:0 12px 28px #1a49660b}
+.card-head{padding:16px 20px;border-bottom:1px solid #e1ebf0;display:flex;justify-content:space-between;align-items:center;gap:12px}
+h2{margin:0;font-size:18px}h3{margin:13px 0 6px;font-size:15px}.small{color:var(--muted);font-size:12px}
+#scene{height:min(68vh,650px);min-height:420px;background:radial-gradient(circle at 47% 33%,#f5fcff,#dcebf0 77%);position:relative}
+#scene canvas{display:block;width:100%;height:100%}
+.overlay{position:absolute;z-index:2;pointer-events:none;left:15px;top:14px;background:#ffffffdc;padding:9px 12px;border:1px solid #dde8ed;border-radius:10px;color:#3e6477;font-size:12px;max-width:290px}
+.loading{display:flex;justify-content:center;align-items:center;height:100%;text-align:center;color:#54728a;font-size:14px;padding:25px}
+.controls{padding:12px 18px;border-top:1px solid #e4edf1;display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;color:#516b7c;font-size:12px}
+.swatches{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle;margin-right:5px}
+.side{padding:18px 19px 22px}.pillbox{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 17px}.pill{border:1px solid #d1e1e9;background:#eff6fa;border-radius:10px;padding:9px 13px;font-weight:bold;color:#2b607d}.pill.sel{background:#176a9b;color:white;border-color:#176a9b}
+.rooms{display:grid;gap:9px}.room{border:1px solid #d8e4ec;background:white;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;width:100%}.room.sel{border-color:#207dae;background:#f0f8fd}.room strong{font-size:14px}.badge{font-size:11px;color:white;padding:5px 9px;border-radius:30px;white-space:nowrap}
+.info{border:1px solid #d9e8ee;border-radius:13px;background:#f5f9fb;padding:14px;margin-top:15px}.info p{font-size:13px;margin:6px 0}.info h3{margin:0 0 9px}
+.notice{font-size:12px;line-height:1.7;color:#586c80;background:#eef3f7;border-radius:11px;padding:11px 13px;margin-top:13px}
+.note{font-size:12px;line-height:1.65;margin-top:15px;color:#667b8d}
+.scene-actions{display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:12px 18px;background:#f5fafc;border-top:1px solid #e3edf2}.scene-actions .pill{margin:0;padding:8px 13px}.scene-actions .small{margin-left:auto}@media(max-width:930px){.layout{grid-template-columns:1fr}#scene{height:520px}}
+@media(max-width:500px){main{padding:12px}#scene{min-height:355px;height:410px}.toolbar .field{flex:1}.card-head{padding:12px 15px}}
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<header><div style="font-size:11px;letter-spacing:1.4px;color:#ccecf7">KALASIN UNIVERSITY · NA MON CAMPUS</div><h1>โมเดล 3D อาคารหอประชุมช่อตะแบก P002 — รุ่นปรับปรุง</h1><p>หมุน • ซูม • เลือกชั้น • คลิกห้อง • ดูสถานะจาก Google Sheets</p></header>
+<main>
+<div class="small" style="margin:-9px 0 14px"><a href="campus-map-3d-v2.html">← กลับแผนที่มหาวิทยาลัย</a></div>
+<div class="toolbar">
+ <label class="field">วันที่ใช้งาน<input type="date" id="date"></label>
+ <label class="field">เวลาเริ่ม<input type="time" id="start" value="09:00"></label>
+ <label class="field">เวลาสิ้นสุด<input type="time" id="end" value="10:00"></label>
+ <button class="primary" id="refresh" type="button">ตรวจสอบสถานะใหม่</button>
+ <span id="msg" role="status" aria-live="polite">กำลังเตรียมข้อมูล…</span>
+</div>
+<div class="layout">
+ <section class="card">
+  <div class="card-head"><div><h2>อาคาร P002 — มุมมอง 3 มิติ</h2><div class="small">แบบจำลองเพิ่มผนัง ประตู หน้าต่าง ทางเดิน และบันได • ซ่อน/แสดงหลังคาได้</div></div><span class="small">Three.js / WebGL</span></div>
+  <div id="scene"><div id="loading" class="loading">กำลังโหลดโมเดล 3D…<br>หากไม่ปรากฏโมเดล กรุณาตรวจสอบอินเทอร์เน็ตและการโหลด Three.js</div><div class="overlay">🖱️ ลากเพื่อหมุน • เลื่อนล้อเมาส์เพื่อซูม<br>คลิกพื้นสีภายในห้องเพื่อดูข้อมูล • ป้ายชั้นอยู่ด้านข้าง</div></div>
+  <div class="scene-actions"><button id="roof" class="pill" type="button" aria-pressed="false">แสดงหลังคา</button><button id="resetCam" class="pill" type="button">ตั้งมุมมองใหม่</button><span class="small">ชั้นที่แสดง: <strong id="floorMode">ทุกชั้น</strong></span></div><div class="controls"><div class="swatches"><span><i class="dot" style="background:#22c55e"></i>ว่าง</span><span><i class="dot" style="background:#f59e0b"></i>รออนุมัติ</span><span><i class="dot" style="background:#3b82f6"></i>อนุมัติแล้ว</span><span><i class="dot" style="background:#64748b"></i>ตรวจสอบไม่ได้</span></div><span>รายละเอียดอาคารเป็นตัวอย่าง ยังไม่ใช่แบบแปลนหรือรูปร่างจริง</span></div>
+ </section>
+ <section class="card"><div class="card-head"><h2>ชั้นและห้อง</h2><span class="small">ข้อมูลจาก Status API</span></div><div class="side"><div class="small">หอประชุมช่อตะแบก (P002)</div><h3>เลือกชั้น</h3><div class="pillbox" id="floors"></div><h3>พื้นที่ที่เปิดให้ดูสถานะ</h3><div class="rooms" id="rooms"><div class="small">กำลังโหลดข้อมูล…</div></div><div class="info" id="info"><div class="small">คลิกห้องจากโมเดล 3D หรือรายชื่อห้องด้านบน</div></div><div class="notice">เวอร์ชันทดลอง: ดูสถานะได้เท่านั้น ยังไม่เปิดรับคำขอจองแยกห้อง ต้องพัฒนาระบบบันทึกรหัสห้องและตรวจสอบการจองซ้ำให้เสร็จก่อน</div></div></section>
+</div>
+<p class="note">รุ่นนี้เพิ่มสิ่งก่อสร้างประกอบแบบจำลองเท่านั้น ไม่อ้างว่าผนัง บันได ทางเดิน และตำแหน่งประตูตรงตามอาคารจริง • ข้อมูลห้องและสถานะอ่านผ่าน Google Apps Script Status API ที่สร้างไว้แล้ว • โมเดลใช้รูปทรงสมมติ ไม่ยืนยันจำนวนประตู ผนัง ทางเดิน และตำแหน่งห้องจริง • การแสดงว่างไม่ใช่คำยืนยันการจองสำเร็จ</p>
+</main>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+const API='https://script.google.com/a/macros/ksu.ac.th/s/AKfycbxtrvIz7u41Nn2w9z31KrN3OMBJRyH86VPRIp1ePKcDranZqIBVyCvltuIdonbRVOkk/exec';
+const P='P002';
+const $=id=>document.getElementById(id);
+const colors={"ว่าง":0x22c55e,"รออนุมัติ":0xf59e0b,"กำลังใช้งาน":0x3b82f6,"ปิดปรับปรุง":0xef4444,"ไม่เปิดให้จอง":0x64748b};
+const hex=s=>colors[s]??0x64748b;
+const state={structure:null,status:null,floor:'all',selected:'',roomMeshes:[],layers:[],roofGroup:null,showRoof:false,seq:0};
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xe7f2f7);
+const camera=new THREE.PerspectiveCamera(44,1,.1,1000);camera.position.set(16,15,21);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;
+$('scene').appendChild(renderer.domElement);$('loading').remove();
+const orbit=new OrbitControls(camera,renderer.domElement);orbit.target.set(0,3,0);orbit.minDistance=9;orbit.maxDistance=57;orbit.maxPolarAngle=Math.PI*.49;orbit.enableDamping=true;orbit.update();
+scene.add(new THREE.HemisphereLight(0xffffff,0xa8c5d4,2.2));
+const sunlight=new THREE.DirectionalLight(0xffffff,2.1);sunlight.position.set(-8,18,11);sunlight.castShadow=true;sunlight.shadow.mapSize.set(1024,1024);sunlight.shadow.camera.left=-24;sunlight.shadow.camera.right=24;sunlight.shadow.camera.top=24;sunlight.shadow.camera.bottom=-24;scene.add(sunlight);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(45,40),new THREE.MeshStandardMaterial({color:0xc8e2d8,roughness:1}));ground.rotation.x=-Math.PI/2;ground.position.y=-.22;ground.receiveShadow=true;scene.add(ground);
+const grid=new THREE.GridHelper(45,30,0xb0c8bd,0xc5dad2);grid.position.y=-.2;scene.add(grid);
+const main=new THREE.Group();scene.add(main);
+// ประตูและบันไดในรุ่นนี้เป็นสัญลักษณ์ออกแบบเพื่อสาธิต ไม่ใช่ตำแหน่งจริง
+function glass(group,w,h,d,x,y,z,color=0xa0dbed,alpha=.34){
+ const mat=new THREE.MeshStandardMaterial({color,roughness:.17,metalness:.12,transparent:true,opacity:alpha,side:THREE.DoubleSide,depthWrite:false});
+ const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
+ mesh.position.set(x,y,z);group.add(mesh);return mesh;
+}
+function rails(group,x,y,z,length,side='x'){
+ const m=new THREE.MeshStandardMaterial({color:0x3e7188,roughness:.45});
+ const horiz=new THREE.Mesh(new THREE.BoxGeometry(side==='x'?length:.08,.08,side==='x'?.08:length),m);
+ horiz.position.set(x,y+.8,z);group.add(horiz);
+ for(let i=-2;i<=2;i++){
+   const post=new THREE.Mesh(new THREE.BoxGeometry(.065,.83,.065),m);
+   post.position.set(x+(side==='x'?i*length/4:0),y+.38,z+(side==='x'?0:i*length/4));group.add(post);
+ }
+}
+function addArchitecturalDetails(group,i){
+ const dark=0x46647a,trim=0x6c96aa;
+ // ทางเดินแนวหน้าห้อง
+ box(group,13.2,.05,1.05,0,.25,3.4,0xdacba6);
+ // กรอบหน้าต่างกระจกด้านหน้า–ด้านหลัง (เป็นสัญลักษณ์)
+ for(const z of [-4.46,4.46]){
+  for(const x of [-5,-2.9,2.9,5]){
+    box(group,1.73,.74,.06,x,1.48,z,trim);
+    glass(group,1.62,.63,.07,x,1.48,z,0x91d2ed,.51);
+    box(group,.045,.71,.10,x,1.48,z,dark);
+  }
+ }
+ // ช่องประตูหน้าแยก 2 บาน เห็นชัดจากด้านหน้า
+ for(const x of [-.48,.48]){
+  box(group,.87,1.32,.09,x,.91,4.47,dark);
+  glass(group,.75,1.2,.1,x,.91,4.54,0xaedfe8,.52);
+  box(group,.05,.24,.1,x+(x>0?-.28:.28),.88,4.61,0xf0d27a);
+ }
+ box(group,2.05,.1,.2,0,1.62,4.45,0x6b8ea1);
+ // บันไดตัวอย่างอยู่ข้างขวา เพื่อสาธิตการมองเห็นองค์ประกอบภายใน
+ for(let n=0;n<7;n++){
+   box(group,1.8,.12,.38,5.55,.33+n*.17,-2.7+n*.4,0xb9c6cd);
+ }
+ rails(group,4.53,.35,-1.45,3.0,'z');
+ rails(group,6.57,.35,-1.45,3.0,'z');
+ // เสาและขอบอาคาร
+ for(const x of [-6.8,6.8])for(const z of [-4.25,4.25])box(group,.27,2.25,.27,x,1.2,z,0x7da2b6);
+}
+function makeRoof(y){
+ const roof=new THREE.Group();roof.position.y=y;
+ // หลังคาทรงเรียบถอดได้ของโมเดลสมมติ
+ box(roof,16.1,.34,11.1,0,0,0,0x527c90);
+ box(roof,14.5,.12,9.8,0,.24,0,0x7fb3c6);
+ for(const z of [-5.3,5.3])box(roof,16.2,.19,.2,0,.18,z,0x315d73);
+ for(const x of [-7.8,7.8])box(roof,.2,.19,11.1,x,.18,0,0x315d73);
+ return roof;
+}
+function updateActionButtons(){
+ const b=$('roof');if(b){b.textContent=state.showRoof?'ซ่อนหลังคา':'แสดงหลังคา';b.setAttribute('aria-pressed',String(state.showRoof));b.disabled=state.floor!=='all';b.title=b.disabled?'กลับไปที่ดูทุกชั้นเพื่อเปิดหลังคา':'คลิกซ่อนหรือแสดงหลังคาแบบจำลอง';}
+ const floorName=state.floor==='all'?'ทุกชั้น':(floorList().find(f=>f.code===state.floor)?.name||state.floor);
+ if($('floorMode'))$('floorMode').textContent=floorName;
+}
+
+function box(group,w,h,d,x,y,z,c,opacity=1){const mat=new THREE.MeshStandardMaterial({color:c,roughness:.82,transparent:opacity<1,opacity,depthWrite:opacity===1});const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh}
+function label(text,width=640){const can=document.createElement('canvas');can.width=width;can.height=150;const ctx=can.getContext('2d');ctx.fillStyle='#ffffffee';ctx.beginPath();ctx.roundRect(8,8,width-16,134,18);ctx.fill();ctx.strokeStyle='#82abc0';ctx.lineWidth=4;ctx.stroke();ctx.fillStyle='#174765';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold 49px Tahoma,Arial';ctx.fillText(text.slice(0,24),width/2,80,width-40);const tx=new THREE.CanvasTexture(can);tx.colorSpace=THREE.SRGBColorSpace;const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tx,transparent:true,depthTest:false}));spr.scale.set(7.7,1.8,1);return spr}
+function roomStatus(r){return state.status?.rooms?.find(x=>x.venueCode===P&&x.code===r.code)||null}
+function roomList(){return state.structure?.rooms?.filter(r=>r.venueCode===P)||[]}
+function floorList(){return (state.structure?.floors||[]).filter(f=>f.venueCode===P).sort((a,b)=>a.order-b.order)}
+function roomId(r){return `${r.venueCode}:${r.code}`}
+function rebuild(){
+ for(const layer of state.layers){main.remove(layer);layer.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m.map)m.map.dispose();m.dispose()})}})}
+ state.roomMeshes=[];state.layers=[];state.roofGroup=null;
+ const floors=floorList();
+ floors.forEach((f,i)=>{
+  const isVisible=state.floor==='all'||state.floor===f.code;
+  if(!isVisible)return;
+  const group=new THREE.Group();group.position.y=state.floor==='all'?i*4.6:0;main.add(group);state.layers.push(group);
+  box(group,14.2,.32,9.25,0,.01,0,0xc1d2d9);
+  // ผนังรอบนอกโปร่งแสงและขอบอาคาร
+  const walls=0xa5c8d7;
+  glass(group,.19,2.15,9,-6.95,1.18,0,walls,.26);
+  glass(group,.19,2.15,9,6.95,1.18,0,walls,.26);
+  glass(group,14.0,2.15,.2,0,1.18,-4.49,walls,.26);
+  glass(group,5.7,2.15,.2,-4.15,1.18,4.49,walls,.26);
+  glass(group,5.7,2.15,.2,4.15,1.18,4.49,walls,.26);
+  addArchitecturalDetails(group,i);
+  const rooms=roomList().filter(r=>r.floorCode===f.code);
+  const n=Math.max(1,rooms.length);const sectionWidth=13.1/n;
+  rooms.forEach((r,k)=>{
+    const cx=-6.55+sectionWidth*(k+.5);const s=roomStatus(r);
+    const active=state.selected===roomId(r);
+    const panel=box(group,sectionWidth-.35,.08,7.1,cx,.23,-.15,hex(s?.status),s?.status==='ว่าง'?.6:.62);
+    panel.userData.room=r;state.roomMeshes.push(panel);
+    // พื้นที่คลิกได้ขนาดใหญ่ คลิกที่บริเวณห้องรวมถึงเฟอร์นิเจอร์ที่อยู่เหนือพื้น
+    const hit=new THREE.Mesh(new THREE.BoxGeometry(sectionWidth-.25,2.05,7.1),new THREE.MeshBasicMaterial({visible:false}));
+    hit.position.set(cx,1.15,-.15);hit.userData.room=r;group.add(hit);state.roomMeshes.push(hit);
+    if(active){
+      for(const z of [-3.66,3.36])box(group,sectionWidth-.25,.07,.1,cx,.35,z,0x0b689d);
+      for(const xx of [-sectionWidth/2+.1,sectionWidth/2-.1])box(group,.1,.07,7.1,cx+xx,.35,-.15,0x0b689d);
+    }
+    if(k>0)glass(group,.12,1.8,7.75,cx-sectionWidth/2,1.07,0,0x9cc6d6,.38);
+    // เฟอร์นิเจอร์และอุปกรณ์เป็นสัญลักษณ์ ไม่ใช่ผังของจริง
+    if(r.code==='C01'){
+      box(group,sectionWidth*.68,.52,1.10,cx,.58,-2.7,0x688da6);
+      box(group,sectionWidth*.56,.09,.84,cx,.9,-2.7,0x335f79);
+      for(let row=0;row<2;row++)for(let q=-2;q<=2;q++){
+        box(group,.44,.39,.48,cx+q*(sectionWidth*.095),.48,-.25+row*1.24,0x8da9b8);
+      }
+    }else{
+      box(group,sectionWidth*.46,.58,1.2,cx,.61,-.55,0x7292a4);
+      box(group,sectionWidth*.5,.12,1.28,cx,.96,-.55,0x47758a);
+      for(let q=-2;q<=2;q++)box(group,.45,.38,.46,cx+q*.83,.52,1.4,0x86a5b7);
+    }
+    // ลดป้ายซ้อนทับ: บนโมเดลแสดงรหัสสั้นๆ เท่านั้น ชื่อเต็มอยู่ในรายการด้านขวา
+    const sign=label(r.code);sign.scale.set(3.45,.84,1);
+    sign.position.set(cx+(n>1?(k%2?.7:-.7):0),2.62,-.9);group.add(sign);
+  });
+  const floorName=label(f.name+' • '+f.code);floorName.scale.set(4.1,.98,1);floorName.position.set(-8.0,2.25,-2.9);group.add(floorName);
+ });
+ if(state.showRoof && state.floor==='all' && floors.length){
+  const roof=makeRoof((floors.length-1)*4.6+3.12);main.add(roof);state.layers.push(roof);state.roofGroup=roof;
+ }
+ updateActionButtons();
+}
+function renderSidebar(){
+ const floors=floorList(),root=$('floors');root.replaceChildren();
+ const items=[{code:'all',name:'ดูทุกชั้น'},...floors.map(f=>({code:f.code,name:f.name}))];
+ for(const f of items){const b=document.createElement('button');b.type='button';b.className='pill'+(state.floor===f.code?' sel':'');b.textContent=f.name;b.onclick=()=>{state.floor=f.code;state.selected='';rebuild();renderSidebar()};root.append(b)}
+ const rr=$('rooms');rr.replaceChildren();
+ const list=roomList().filter(r=>state.floor==='all'||r.floorCode===state.floor);
+ if(!list.length)rr.textContent='ยังไม่มีห้องในชั้นที่เลือก';
+ for(const r of list){const s=roomStatus(r);const btn=document.createElement('button');btn.type='button';btn.className='room'+(state.selected===roomId(r)?' sel':'');const title=document.createElement('span');const strong=document.createElement('strong');strong.textContent=r.name;const sub=document.createElement('div');sub.className='small';sub.textContent=r.code+' · '+(floors.find(f=>f.code===r.floorCode)?.name||r.floorCode);title.append(strong,sub);const tag=document.createElement('span');tag.className='badge';tag.textContent=s?.status||'ไม่ทราบสถานะ';tag.style.backgroundColor='#'+hex(s?.status).toString(16).padStart(6,'0');btn.append(title,tag);btn.onclick=()=>selectRoom(r);rr.append(btn)}
+ const info=$('info');info.replaceChildren();const sel=roomList().find(r=>roomId(r)===state.selected);
+ if(!sel){const msg=document.createElement('div');msg.className='small';msg.textContent='คลิกห้องบนโมเดล หรือเลือกชื่อห้องเพื่อดูรายละเอียด';info.append(msg);return}
+ const h=document.createElement('h3');h.textContent=sel.name;info.append(h);
+ const props=[['รหัสห้อง',sel.code],['ชั้น',floors.find(f=>f.code===sel.floorCode)?.name||sel.floorCode],['ประเภทห้อง',sel.type],['ความจุ',sel.capacity+' คน'],['รายละเอียด',sel.description||'-'],['สถานะปัจจุบัน',roomStatus(sel)?.status||'ตรวจสอบไม่ได้']];
+ for(const [name,value] of props){const p=document.createElement('p');const st=document.createElement('strong');st.textContent=name+': ';p.append(st,document.createTextNode(String(value)));info.append(p)}
+}
+function selectRoom(r){state.selected=roomId(r);if(state.floor!=='all'&&state.floor!==r.floorCode)state.floor=r.floorCode;rebuild();renderSidebar()}
+const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let down=null;
+renderer.domElement.addEventListener('pointerdown',e=>down={x:e.clientX,y:e.clientY});
+renderer.domElement.addEventListener('pointerup',e=>{if(!down||Math.hypot(e.clientX-down.x,e.clientY-down.y)>7)return;down=null;const rect=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);raycaster.setFromCamera(pointer,camera);const hit=raycaster.intersectObjects(state.roomMeshes)[0];if(hit?.object.userData.room)selectRoom(hit.object.userData.room)});
+function resize(){const rect=$('scene').getBoundingClientRect();if(!rect.width||!rect.height)return;camera.aspect=rect.width/rect.height;camera.updateProjectionMatrix();renderer.setSize(rect.width,rect.height,false)}
+window.addEventListener('resize',resize);if('ResizeObserver'in window)new ResizeObserver(resize).observe($('scene'));
+function loop(){requestAnimationFrame(loop);orbit.update();renderer.render(scene,camera)}resize();loop();
+$('roof').onclick=()=>{state.showRoof=!state.showRoof;rebuild();};
+$('resetCam').onclick=()=>{camera.position.set(17,16,22);orbit.target.set(0,state.floor==='all'?3:1.0,0);orbit.update();};
+
+function jsonp(params){return new Promise((resolve,reject)=>{const cb='ksu_p002_'+Date.now()+'_'+Math.floor(Math.random()*1e9),url=new URL(API);Object.entries({...params,callback:cb}).forEach(([k,v])=>url.searchParams.set(k,String(v)));const script=document.createElement('script');let closed=false;let timer;function finish(error,data){if(closed)return;closed=true;clearTimeout(timer);script.remove();delete window[cb];error?reject(error):resolve(data)}window[cb]=d=>finish(null,d);script.onerror=()=>finish(new Error('เชื่อมต่อ Status API ไม่สำเร็จ'));timer=setTimeout(()=>finish(new Error('หมดเวลารอ Status API')),15000);script.src=url.toString();document.head.append(script)})}
+async function refresh(){if(!state.structure)return;const date=$('date').value,start=$('start').value,end=$('end').value,seq=++state.seq;state.status=null;rebuild();renderSidebar();if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||start>=end){$('msg').textContent='กรุณาเลือกวันที่และช่วงเวลาที่ถูกต้อง';return}$('msg').textContent='กำลังตรวจสอบสถานะ…';try{const res=await jsonp({action:'room-status',date,start,end});if(seq!==state.seq)return;if(res.success!==true||!Array.isArray(res.rooms))throw new Error(res.message||'รูปแบบข้อมูลไม่ถูกต้อง');state.status=res;$('msg').textContent='ดึงข้อมูลสถานะล่าสุดแล้ว'}catch(e){if(seq!==state.seq)return;$('msg').textContent='ไม่สามารถตรวจสอบสถานะ: '+e.message}rebuild();renderSidebar()}
+async function boot(){const now=new Date();$('date').value=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Bangkok',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);$('refresh').onclick=refresh;['date','start','end'].forEach(k=>$(k).addEventListener('change',refresh));$('msg').textContent='กำลังโหลดข้อมูลอาคารและห้อง…';try{const res=await jsonp({action:'structure'});if(res.success!==true||!Array.isArray(res.rooms)||!Array.isArray(res.floors))throw new Error(res.message||'รูปแบบข้อมูลไม่ถูกต้อง');state.structure=res;state.floor='all';rebuild();renderSidebar();refresh()}catch(e){$('msg').textContent='โหลดโครงสร้างไม่ได้: '+e.message;$('rooms').textContent='ไม่สามารถโหลดรายการห้องได้';rebuild()}}
+boot();
+</script>
+</body>
+</html>
